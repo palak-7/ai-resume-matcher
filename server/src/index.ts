@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import authRoutes from "./routes/auth";
 
 dotenv.config();
 
@@ -14,13 +15,17 @@ app.use(express.json());
 app.get("/health", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
 });
-
-mongoose
-  .connect(process.env.MONGODB_URI || "")
-  .then(() => {
-    console.log("MongoDB connected");
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((err) => console.error("MongoDB connection error:", err));
+app.use("/api/auth", authRoutes);
+if (process.env.NODE_ENV !== "test") {
+  mongoose
+    .connect(process.env.MONGODB_URI || "")
+    .then(() => {
+      console.log("MongoDB connected");
+      app.listen(process.env.PORT || 5000, () =>
+        console.log(`Server running on port ${process.env.PORT || 5000}`),
+      );
+    })
+    .catch((err) => console.error("MongoDB connection error:", err));
+}
 
 export default app;
