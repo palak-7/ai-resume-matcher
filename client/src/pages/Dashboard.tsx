@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
+import { DashboardSkeleton } from '../components/Skeleton'
 
 interface Resume {
   _id: string
@@ -16,7 +16,6 @@ interface Analysis {
 }
 
 const Dashboard = () => {
-  const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [resumes, setResumes] = useState<Resume[]>([])
   const [analyses, setAnalyses] = useState<Analysis[]>([])
@@ -46,16 +45,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-gray-900">AI Resume Matcher</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">Hi, {user?.name}</span>
-          <button onClick={logout} className="text-sm text-red-600 hover:underline">
-            Logout
-          </button>
-        </div>
-      </nav>
-
       <div className="max-w-4xl mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -73,9 +62,7 @@ const Dashboard = () => {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          </div>
+          <DashboardSkeleton />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -121,7 +108,7 @@ const Dashboard = () => {
                     <li key={r._id} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
                       <span className="text-lg">📄</span>
                       <div>
-                        <p className="text-sm font-medium text-gray-700 truncate max-w-[200px]">
+                        <p className="text-sm font-medium text-gray-700 truncate max-w-50">
                           {r.originalName}
                         </p>
                         <p className="text-xs text-gray-400">

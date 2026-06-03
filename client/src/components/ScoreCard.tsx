@@ -38,7 +38,7 @@ const ScoreCard = ({ matchScore, matchedSkills, missingSkills, suggestions }: Sc
                 </h3>
                 <div className="flex items-center gap-6">
                     {/* Circular meter */}
-                    <div className="relative w-24 h-24 flex-shrink-0">
+                    <div className="relative w-24 h-24 shrink-0">
                         <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
                             <circle cx="48" cy="48" r="40" fill="none" stroke="#f3f4f6" strokeWidth="8" />
                             <circle
@@ -118,7 +118,7 @@ const ScoreCard = ({ matchScore, matchedSkills, missingSkills, suggestions }: Sc
                     <ul className="space-y-3">
                         {suggestions.map((tip, i) => (
                             <li key={i} className="flex gap-3 text-sm text-gray-700">
-                                <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 mt-0.5">
+                                <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 mt-0.5">
                                     {i + 1}
                                 </span>
                                 {tip}
