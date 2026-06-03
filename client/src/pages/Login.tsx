@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import api from "../services/api";
 
 const Login = () => {
@@ -20,8 +20,24 @@ const Login = () => {
       const res = await api.post("/auth/login", { email, password });
       login(res.data.token, res.data.user);
       navigate("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
+    } catch (err: unknown) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err
+      ) {
+        const error = err as {
+          response?: {
+            data?: {
+              message?: string;
+            };
+          };
+        };
+
+        setError(error.response?.data?.message || "Login failed");
+      } else {
+        setError("Login failed");
+      }
     } finally {
       setLoading(false);
     }

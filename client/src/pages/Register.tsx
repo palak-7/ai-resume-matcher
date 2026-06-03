@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import api from "../services/api";
 
 const Register = () => {
@@ -21,8 +21,24 @@ const Register = () => {
       const res = await api.post("/auth/register", { name, email, password });
       login(res.data.token, res.data.user);
       navigate("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Registration failed");
+    } catch (err: unknown) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err
+      ) {
+        const error = err as {
+          response?: {
+            data?: {
+              message?: string;
+            };
+          };
+        };
+
+        setError(error.response?.data?.message || "Registration failed");
+      } else {
+        setError("Registration failed");
+      }
     } finally {
       setLoading(false);
     }

@@ -45,8 +45,24 @@ const Analyse = () => {
         jobDescription: jobDescription.trim(),
       })
       setResult(res.data.analysis)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Analysis failed')
+    } catch (err: unknown) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err
+      ) {
+        const error = err as {
+          response?: {
+            data?: {
+              message?: string;
+            };
+          };
+        };
+
+        setError(error.response?.data?.message || "Analysis failed");
+      } else {
+        setError("Analysis failed");
+      }
     } finally {
       setAnalysing(false)
     }
