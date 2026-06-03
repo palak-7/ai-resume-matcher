@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { DashboardSkeleton } from '../components/Skeleton'
+import RepoBulletGenerator from '../components/RepoBulletGenerator'
 
 interface Resume {
   _id: string
@@ -70,64 +71,67 @@ const Dashboard = () => {
         {loading ? (
           <DashboardSkeleton />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {/* Recent Analyses */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Recent Analyses</h3>
-              {analyses.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-400 text-sm">No analyses yet</p>
-                  <button
-                    onClick={() => navigate('/analyse')}
-                    className="text-blue-600 text-sm hover:underline mt-2"
-                  >
-                    Run your first analysis →
-                  </button>
-                </div>
-              ) : (
-                <ul className="space-y-3">
-                  {analyses.slice(0, 5).map((a) => (
-                    <li key={a._id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                      <span className="text-sm text-gray-600">
-                        {new Date(a.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
-                      </span>
-                      <span className={`text-sm font-bold ${scoreColor(a.matchScore)}`}>
-                        {a.matchScore}%
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+              {/* Recent Analyses */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 className="font-semibold text-gray-900 mb-4">Recent Analyses</h3>
+                {analyses.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400 text-sm">No analyses yet</p>
+                    <button
+                      onClick={() => navigate('/analyse')}
+                      className="text-blue-600 text-sm hover:underline mt-2"
+                    >
+                      Run your first analysis →
+                    </button>
+                  </div>
+                ) : (
+                  <ul className="space-y-3">
+                    {analyses.slice(0, 5).map((a) => (
+                      <li key={a._id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                        <span className="text-sm text-gray-600">
+                          {new Date(a.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                        </span>
+                        <span className={`text-sm font-bold ${scoreColor(a.matchScore)}`}>
+                          {a.matchScore}%
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
-            {/* Uploaded Resumes */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Uploaded Resumes</h3>
-              {resumes.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-400 text-sm">No resumes uploaded yet</p>
-                </div>
-              ) : (
-                <ul className="space-y-3">
-                  {resumes.slice(0, 5).map((r) => (
-                    <li key={r._id} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
-                      <span className="text-lg">📄</span>
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 truncate max-w-50">
-                          {r.originalName}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {new Date(r.createdAt).toLocaleDateString('en-IN')}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+              {/* Uploaded Resumes */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 className="font-semibold text-gray-900 mb-4">Uploaded Resumes</h3>
+                {resumes.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400 text-sm">No resumes uploaded yet</p>
+                  </div>
+                ) : (
+                  <ul className="space-y-3">
+                    {resumes.slice(0, 5).map((r) => (
+                      <li key={r._id} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
+                        <span className="text-lg">📄</span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 truncate max-w-50">
+                            {r.originalName}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {new Date(r.createdAt).toLocaleDateString('en-IN')}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
-          </div>
+            </div><div className="mt-6">
+              <RepoBulletGenerator />
+            </div></>
         )}
       </div>
     </div>

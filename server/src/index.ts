@@ -9,6 +9,7 @@ import { randomUUID } from "crypto";
 import authRoutes from "./routes/auth";
 import resumeRoutes from "./routes/resume";
 import aiRoutes from "./routes/ai";
+import githubRoutes from "./routes/github";
 
 dotenv.config();
 const app = express();
@@ -47,6 +48,7 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/github", githubRoutes);
 
 if (process.env.NODE_ENV !== "test") {
   mongoose
