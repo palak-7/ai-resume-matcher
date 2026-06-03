@@ -99,7 +99,18 @@ describe("POST /api/ai/cover-letter", () => {
     const res = await request(app)
       .post("/api/ai/cover-letter")
       .set("Authorization", `Bearer ${authToken}`)
-      .send({ resumeText: "some text" });
+      .send({ jobDescription: "some jd" });
     expect(res.status).toBe(400);
+  });
+
+  it("should return 404 for invalid resumeId", async () => {
+    const res = await request(app)
+      .post("/api/ai/cover-letter")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        resumeId: "507f1f77bcf86cd799439011",
+        jobDescription: "Looking for React developer",
+      });
+    expect(res.status).toBe(404);
   });
 });
