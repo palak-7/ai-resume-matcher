@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import PDFUpload from '../components/PDFUpload'
 import ScoreCard from '../components/ScoreCard'
 import api from '../services/api'
+import BulletRewriter from '../components/BulletRewriter'
+import InterviewQuestions from '../components/InterviewQuestions'
+import CoverLetter from '../components/CoverLetter'
 
 interface Resume {
   id: string
@@ -136,6 +139,21 @@ const Analyse = () => {
               missingSkills={result.missingSkills}
               suggestions={result.suggestions}
             />
+            {/* AI Tools */}
+            <div className="mt-8 space-y-6">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                AI Tools
+              </h2>
+              <BulletRewriter />
+              <InterviewQuestions
+                jobDescription={jobDescription}
+                missingSkills={result.missingSkills}
+              />
+              <CoverLetter
+                jobDescription={jobDescription}
+                resumeId={resume?.id}   // ← ye add karo
+              />
+            </div>
           </>
         )}
 
