@@ -20,6 +20,12 @@ const Navbar = () => {
                     Hi, {user?.name}
                 </span>
                 <button
+                    onClick={() => navigate('/history')}
+                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                >
+                    History
+                </button>
+                <button
                     onClick={toggleTheme}
                     className="text-lg hover:opacity-70 transition-opacity"
                     title="Toggle dark mode"

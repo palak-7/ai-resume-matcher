@@ -8,6 +8,7 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Analyse from './pages/Analyse'
 import { useAuth } from './context/AuthContext'
+import History from './pages/History'
 
 // Navbar sirf logged-in pages pe dikhao
 const AppLayout = () => {
@@ -27,6 +28,9 @@ const AppLayout = () => {
         } />
         <Route path="/analyse" element={
           <ProtectedRoute><Analyse /></ProtectedRoute>
+        } />
+        <Route path="/history" element={
+          <ProtectedRoute><History /></ProtectedRoute>
         } />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

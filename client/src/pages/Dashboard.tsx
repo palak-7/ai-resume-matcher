@@ -59,6 +59,12 @@ const Dashboard = () => {
           >
             + New Analysis
           </button>
+          <button
+            onClick={() => navigate('/history')}
+            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 px-5 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors text-sm"
+          >
+            View History
+          </button>
         </div>
 
         {loading ? (
