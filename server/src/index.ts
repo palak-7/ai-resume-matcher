@@ -11,6 +11,7 @@ import resumeRoutes from "./routes/resume";
 import aiRoutes from "./routes/ai";
 import githubRoutes from "./routes/github";
 import helmet from "helmet";
+import { generalLimiter } from "./middleware/securityMiddleware";
 
 dotenv.config();
 const app = express();
@@ -28,6 +29,7 @@ app.use(
     crossOriginEmbedderPolicy: false,
   }),
 );
+app.use(generalLimiter);
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
 app.use((req, res, next) => {
   const requestId = randomUUID().slice(0, 8);
