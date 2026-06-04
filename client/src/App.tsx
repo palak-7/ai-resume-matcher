@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard'
 import Analyse from './pages/Analyse'
 import { useAuth } from './context/useAuth'
 import History from './pages/History'
+import GitHubCallback from './pages/GitHubCallback'
 
 // Navbar sirf logged-in pages pe dikhao
 const AppLayout = () => {
@@ -32,6 +33,7 @@ const AppLayout = () => {
         <Route path="/history" element={
           <ProtectedRoute><History /></ProtectedRoute>
         } />
+        <Route path="/github-callback" element={<GitHubCallback />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>

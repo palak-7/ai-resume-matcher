@@ -2,7 +2,17 @@ import { Request, Response } from "express";
 import fetch from "node-fetch";
 import Groq from "groq-sdk";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const getGroqClient = () => {
+  const apiKey = process.env.GROQ_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY is not configured");
+  }
+
+  return new Groq({ apiKey });
+};
+
+const getClientUrl = () => process.env.CLIENT_URL || "http://localhost:5173";
 
 // GET /api/github/auth — redirect to GitHub OAuth
 export const githubAuth = (req: Request, res: Response) => {
@@ -38,13 +48,17 @@ export const githubCallback = async (req: Request, res: Response) => {
     const tokenData = (await tokenRes.json()) as any;
     const accessToken = tokenData.access_token;
 
+    if (!accessToken) {
+      throw new Error("GitHub did not return an access token");
+    }
+
     // Redirect to frontend with token
     res.redirect(
-      `${process.env.CLIENT_URL}/github-callback?token=${accessToken}`,
+      `${getClientUrl()}/github-callback?token=${encodeURIComponent(accessToken)}`,
     );
   } catch {
     res.redirect(
-      `${process.env.CLIENT_URL}/dashboard?error=github_auth_failed`,
+      `${getClientUrl()}/dashboard?error=github_auth_failed`,
     );
   }
 };
@@ -117,6 +131,7 @@ export const generateRepoBullets = async (req: Request, res: Response) => {
       }
     }
 
+    const groq = getGroqClient();
     const completion = await groq.chat.completions.create({
       model: "llama-3.1-8b-instant",
       messages: [
