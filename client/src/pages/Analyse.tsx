@@ -69,16 +69,16 @@ const Analyse = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Navbar */}
-      <nav className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
+      <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center gap-4">
         <button
           onClick={() => navigate('/dashboard')}
-          className="text-sm text-gray-500 hover:text-gray-700"
+          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
         >
           ← Back
         </button>
-        <h1 className="text-lg font-semibold text-gray-900">New Analysis</h1>
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">New Analysis</h1>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 py-10 space-y-8">
@@ -87,7 +87,7 @@ const Analyse = () => {
           <>
             {/* Step 1 — Upload */}
             <div>
-              <h2 className="text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
                 Step 1 — Upload Resume
               </h2>
               <PDFUpload onUploadSuccess={setResume} />
@@ -95,7 +95,7 @@ const Analyse = () => {
 
             {/* Step 2 — JD */}
             <div>
-              <h2 className="text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
                 Step 2 — Paste Job Description
               </h2>
               <textarea
@@ -103,19 +103,19 @@ const Analyse = () => {
                 onChange={(e) => setJobDescription(e.target.value)}
                 placeholder="Paste the full job description here — the more detail, the better the analysis..."
                 rows={8}
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                 {jobDescription.length} characters
                 {jobDescription.length < 50 && jobDescription.length > 0 && (
-                  <span className="text-amber-500"> — needs at least 50</span>
+                  <span className="text-amber-500 dark:text-amber-400"> — needs at least 50</span>
                 )}
               </p>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
@@ -140,10 +140,10 @@ const Analyse = () => {
           <>
             {/* Score Card */}
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xl font-bold text-gray-900">Analysis Result</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Analysis Result</h2>
               <button
                 onClick={() => { setResult(null); setResume(null); setJobDescription('') }}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
               >
                 New Analysis
               </button>

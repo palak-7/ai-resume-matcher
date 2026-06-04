@@ -81,7 +81,7 @@ const RepoBulletGenerator = () => {
 
     if (!githubToken) {
         return (
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                     ✦ GitHub Repo Bullet Generator
                 </h3>
@@ -93,7 +93,7 @@ const RepoBulletGenerator = () => {
                 <a
                     href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'
                         }/api/github/auth`}
-                    className="inline-block bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
+                    className="inline-block bg-gray-900 dark:bg-white text-white dark:text-gray-950 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors"
                 >
                     Connect GitHub
                 </a>
@@ -102,7 +102,7 @@ const RepoBulletGenerator = () => {
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                 ✦ GitHub Repo Bullet Generator
             </h3>
@@ -112,7 +112,7 @@ const RepoBulletGenerator = () => {
             </p>
 
             {fetching ? (
-                <p className="text-sm text-gray-400">Loading repos...</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500">Loading repos...</p>
             ) : (
                 <div className="space-y-3">
                     <select
@@ -125,7 +125,7 @@ const RepoBulletGenerator = () => {
                             setSelectedRepo(repo || null)
                             setBullets([])
                         }}
-                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                        className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="">Select a repository...</option>
 
@@ -141,7 +141,7 @@ const RepoBulletGenerator = () => {
                             type="button"
                             onClick={handleGenerate}
                             disabled={loading}
-                            className="w-full bg-gray-900 dark:bg-gray-700 text-white py-2 rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity flex items-center justify-center gap-2"
+                            className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-950 py-2 rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>
@@ -158,14 +158,14 @@ const RepoBulletGenerator = () => {
 
             {bullets.length > 0 && (
                 <div className="mt-4 space-y-2">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                         Generated Bullets
                     </p>
 
                     {bullets.map((bullet, index) => (
                         <div
                             key={index}
-                            className="flex gap-2 items-start bg-gray-50 dark:bg-gray-700 rounded-lg p-3"
+                            className="flex gap-2 items-start bg-gray-50 dark:bg-gray-800 rounded-lg p-3"
                         >
                             <span className="w-5 h-5 bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 mt-0.5">
                                 {index + 1}
@@ -178,7 +178,7 @@ const RepoBulletGenerator = () => {
                             <button
                                 type="button"
                                 onClick={() => handleCopy(bullet, index)}
-                                className="text-xs text-gray-400 hover:text-blue-600 hrink-0"
+                                className="text-xs text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 shrink-0"
                             >
                                 {copied === index ? '✓' : 'Copy'}
                             </button>

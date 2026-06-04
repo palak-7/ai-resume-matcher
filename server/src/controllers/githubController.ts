@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import fetch from "node-fetch";
 import Groq from "groq-sdk";
 
 const getGroqClient = () => {
@@ -57,9 +56,7 @@ export const githubCallback = async (req: Request, res: Response) => {
       `${getClientUrl()}/github-callback?token=${encodeURIComponent(accessToken)}`,
     );
   } catch {
-    res.redirect(
-      `${getClientUrl()}/dashboard?error=github_auth_failed`,
-    );
+    res.redirect(`${getClientUrl()}/dashboard?error=github_auth_failed`);
   }
 };
 

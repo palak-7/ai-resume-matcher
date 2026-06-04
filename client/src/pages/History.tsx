@@ -18,9 +18,9 @@ interface Analysis {
 }
 
 const severityColor = {
-    high: 'bg-red-100 text-red-700',
-    medium: 'bg-amber-100 text-amber-700',
-    low: 'bg-yellow-100 text-yellow-700',
+    high: 'bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300',
+    medium: 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300',
+    low: 'bg-yellow-100 dark:bg-yellow-950/60 text-yellow-700 dark:text-yellow-300',
 }
 
 const History = () => {
@@ -71,10 +71,10 @@ const History = () => {
                     </div>
                 ) : analyses.length === 0 ? (
                     <div className="text-center py-20">
-                        <p className="text-gray-400 text-sm">No analyses yet</p>
+                        <p className="text-gray-400 dark:text-gray-500 text-sm">No analyses yet</p>
                         <button
                             onClick={() => navigate('/analyse')}
-                            className="text-blue-600 text-sm hover:underline mt-2"
+                            className="text-blue-600 dark:text-blue-400 text-sm hover:underline mt-2"
                         >
                             Run your first analysis →
                         </button>
@@ -106,7 +106,7 @@ const History = () => {
                                             </p>
                                         </div>
                                     </div>
-                                    <span className="text-gray-400 text-sm">
+                                    <span className="text-gray-400 dark:text-gray-500 text-sm">
                                         {expanded === a._id ? '▲' : '▼'}
                                     </span>
                                 </button>
@@ -118,12 +118,12 @@ const History = () => {
                                         {/* Matched Skills */}
                                         {a.matchedSkills.length > 0 && (
                                             <div>
-                                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
                                                     Matched Skills
                                                 </p>
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {a.matchedSkills.map(s => (
-                                                        <span key={s} className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
+                                                        <span key={s} className="bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-300 text-xs px-2 py-0.5 rounded-full">
                                                             ✓ {s}
                                                         </span>
                                                     ))}
@@ -134,7 +134,7 @@ const History = () => {
                                         {/* Missing Skills */}
                                         {a.missingSkills.length > 0 && (
                                             <div>
-                                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
                                                     Missing Skills
                                                 </p>
                                                 <div className="flex flex-wrap gap-1.5">
@@ -150,7 +150,7 @@ const History = () => {
                                         {/* Suggestions */}
                                         {a.suggestions.length > 0 && (
                                             <div>
-                                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
                                                     Suggestions
                                                 </p>
                                                 <ul className="space-y-1">

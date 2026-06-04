@@ -63,20 +63,20 @@ const PDFUpload = ({ onUploadSuccess }: PDFUploadProps) => {
 
     if (uploaded) {
         return (
-            <div className="border border-green-200 bg-green-50 rounded-xl p-6">
+            <div className="border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40 rounded-xl p-6">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-lg">
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center text-green-600 dark:text-green-300 text-lg">
                         ✓
                     </div>
                     <div>
-                        <p className="font-medium text-green-800 text-sm">{uploaded.originalName}</p>
-                        <p className="text-green-600 text-xs mt-0.5">
+                        <p className="font-medium text-green-800 dark:text-green-200 text-sm">{uploaded.originalName}</p>
+                        <p className="text-green-600 dark:text-green-300 text-xs mt-0.5">
                             {(uploaded.textLength / 1000).toFixed(1)}k characters extracted
                         </p>
                     </div>
                     <button
                         onClick={() => { setUploaded(null); setError('') }}
-                        className="ml-auto text-xs text-green-600 hover:underline"
+                        className="ml-auto text-xs text-green-600 dark:text-green-300 hover:underline"
                     >
                         Change
                     </button>
@@ -93,8 +93,8 @@ const PDFUpload = ({ onUploadSuccess }: PDFUploadProps) => {
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${isDragging
-                    ? 'border-blue-400 bg-blue-50'
-                    : 'border-gray-300 hover:border-gray-400 bg-gray-50'
+                    ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/40'
+                    : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-900'
                     }`}
             >
                 <input
@@ -108,22 +108,22 @@ const PDFUpload = ({ onUploadSuccess }: PDFUploadProps) => {
                 {uploading ? (
                     <div className="flex flex-col items-center gap-3">
                         <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                        <p className="text-sm text-gray-500">Uploading and extracting text...</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Uploading and extracting text...</p>
                     </div>
                 ) : (
                     <div className="flex flex-col items-center gap-2">
                         <div className="text-4xl mb-1">📄</div>
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
                             Drag & drop your resume here
                         </p>
-                        <p className="text-xs text-gray-400">or click to browse</p>
-                        <p className="text-xs text-gray-400 mt-1">PDF only · Max 5MB</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">or click to browse</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">PDF only · Max 5MB</p>
                     </div>
                 )}
             </div>
 
             {error && (
-                <p className="text-red-600 text-xs mt-2">{error}</p>
+                <p className="text-red-600 dark:text-red-400 text-xs mt-2">{error}</p>
             )}
         </div>
     )
