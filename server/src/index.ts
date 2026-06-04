@@ -29,7 +29,9 @@ app.use(
     crossOriginEmbedderPolicy: false,
   }),
 );
-app.use(generalLimiter);
+if (process.env.NODE_ENV !== "test") {
+  app.use(generalLimiter);
+}
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
 app.use((req, res, next) => {
   const requestId = randomUUID().slice(0, 8);
