@@ -31,7 +31,7 @@ describe("POST /api/auth/register", () => {
     const res = await request(app).post("/api/auth/register").send({
       name: "Palak Sehgal",
       email: "palak@test.com",
-      password: "password123",
+      password: "Password123",
     });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("token");
@@ -50,12 +50,12 @@ describe("POST /api/auth/register", () => {
     await request(app).post("/api/auth/register").send({
       name: "Palak",
       email: "palak@test.com",
-      password: "password123",
+      password: "Password123",
     });
     const res = await request(app).post("/api/auth/register").send({
       name: "Palak 2",
       email: "palak@test.com",
-      password: "password456",
+      password: "Password456",
     });
     expect(res.status).toBe(400);
     expect(res.body.message).toMatch(/already exists/i);
@@ -68,14 +68,14 @@ describe("POST /api/auth/login", () => {
     await request(app).post("/api/auth/register").send({
       name: "Palak Sehgal",
       email: "palak@test.com",
-      password: "password123",
+      password: "Password123",
     });
   });
 
   it("should login with correct credentials", async () => {
     const res = await request(app).post("/api/auth/login").send({
       email: "palak@test.com",
-      password: "password123",
+      password: "Password123",
     });
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("token");
@@ -84,7 +84,7 @@ describe("POST /api/auth/login", () => {
   it("should not login with wrong password", async () => {
     const res = await request(app).post("/api/auth/login").send({
       email: "palak@test.com",
-      password: "wrongpassword",
+      password: "Wrongpass123",
     });
     expect(res.status).toBe(401);
   });
@@ -92,7 +92,7 @@ describe("POST /api/auth/login", () => {
   it("should not login with non-existent email", async () => {
     const res = await request(app).post("/api/auth/login").send({
       email: "nobody@test.com",
-      password: "password123",
+      password: "Password123",
     });
     expect(res.status).toBe(401);
   });
@@ -104,7 +104,7 @@ describe("GET /api/auth/me", () => {
     const registerRes = await request(app).post("/api/auth/register").send({
       name: "Palak Sehgal",
       email: "palak@test.com",
-      password: "password123",
+      password: "Password123",
     });
     const token = registerRes.body.token;
 
@@ -119,5 +119,39 @@ describe("GET /api/auth/me", () => {
   it("should reject request without token", async () => {
     const res = await request(app).get("/api/auth/me");
     expect(res.status).toBe(401);
+  });
+});
+
+describe("Input Validation", () => {
+  it("should reject weak password on register", async () => {
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Palak",
+      email: "palak@test.com",
+      password: "abc",
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.errors).toBeDefined();
+  });
+
+  it("should reject invalid email on register", async () => {
+    const res = await request(app).post("/api/auth/register").send({
+      name: "Palak",
+      email: "notanemail",
+      password: "Test123",
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("should reject invalid mongoId on analyse", async () => {
+    const loginRes = await request(app).post("/api/auth/register").send({
+      name: "Palak",
+      email: "palak2@test.com",
+      password: "Test123",
+    });
+    const res = await request(app)
+      .post("/api/resume/analyse")
+      .set("Authorization", `Bearer ${loginRes.body.token}`)
+      .send({ resumeId: "invalid-id", jobDescription: "x".repeat(50) });
+    expect(res.status).toBe(400);
   });
 });

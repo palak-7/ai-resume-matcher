@@ -48,12 +48,12 @@ beforeAll(async () => {
   await request(app).post("/api/auth/register").send({
     name: "Palak Sehgal",
     email: "palak@test.com",
-    password: "password123",
+    password: "Password123",
   });
 
   const loginRes = await request(app).post("/api/auth/login").send({
     email: "palak@test.com",
-    password: "password123",
+    password: "Password123",
   });
   authToken = loginRes.body.token;
 });
@@ -125,7 +125,7 @@ describe("POST /api/resume/analyse", () => {
     const regRes = await request(app).post("/api/auth/register").send({
       name: "Test User",
       email: "test2@test.com",
-      password: "password123",
+      password: "Password123",
     });
     const token = regRes.body.token;
 

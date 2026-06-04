@@ -39,7 +39,7 @@ beforeAll(async () => {
   const res = await request(app).post("/api/auth/register").send({
     name: "Palak",
     email: "palak@test.com",
-    password: "password123",
+    password: "Password123",
   });
   authToken = res.body.token;
 });

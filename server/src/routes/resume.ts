@@ -7,6 +7,10 @@ import {
   getMyResumes,
   getMyAnalyses,
 } from "../controllers/resumeController";
+import {
+  analyseValidation,
+  validate,
+} from "../middleware/validationMiddleware";
 
 const storage = multer.memoryStorage();
 
@@ -36,8 +40,8 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
 
 const router = Router();
 
-router.post("/upload", protect, handleUpload, uploadResume); // ← handleUpload use karo
-router.post("/analyse", protect, analyseResume);
+router.post("/upload", protect, handleUpload, uploadResume);
+router.post("/analyse", protect, analyseValidation, validate, analyseResume);
 router.get("/my-resumes", protect, getMyResumes);
 router.get("/analyses", protect, getMyAnalyses);
 
