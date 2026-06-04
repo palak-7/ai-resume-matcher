@@ -10,11 +10,24 @@ import authRoutes from "./routes/auth";
 import resumeRoutes from "./routes/resume";
 import aiRoutes from "./routes/ai";
 import githubRoutes from "./routes/github";
+import helmet from "helmet";
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
-
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  }),
+);
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
 app.use((req, res, next) => {
   const requestId = randomUUID().slice(0, 8);
