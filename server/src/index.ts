@@ -19,6 +19,7 @@ import {
 import cookieParser from "cookie-parser";
 import morganMiddleware from "./middleware/morganMiddleware";
 import logger from "./utils/logger";
+import compression from "compression";
 
 dotenv.config();
 const app = express();
@@ -36,6 +37,18 @@ app.use(
     crossOriginEmbedderPolicy: false,
   }),
 );
+
+app.use(
+  compression({
+    level: 6, // compression level 1-9 (6 = balanced)
+    threshold: 1024, // sirf 1KB se badi responses compress karo
+    filter: (req, res) => {
+      if (req.headers["x-no-compression"]) return false;
+      return compression.filter(req, res);
+    },
+  }),
+);
+
 if (process.env.NODE_ENV !== "test") {
   app.use(generalLimiter);
 }
