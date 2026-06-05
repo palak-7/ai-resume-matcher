@@ -11,7 +11,10 @@ import resumeRoutes from "./routes/resume";
 import aiRoutes from "./routes/ai";
 import githubRoutes from "./routes/github";
 import helmet from "helmet";
-import { generalLimiter } from "./middleware/securityMiddleware";
+import {
+  generalLimiter,
+  mongoSanitizer,
+} from "./middleware/securityMiddleware";
 
 dotenv.config();
 const app = express();
@@ -66,7 +69,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/github", githubRoutes);
-
+app.use(mongoSanitizer);
 if (process.env.NODE_ENV !== "test") {
   mongoose
     .connect(process.env.MONGODB_URI || "")

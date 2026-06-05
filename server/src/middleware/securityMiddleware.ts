@@ -1,4 +1,5 @@
 import rateLimit from "express-rate-limit";
+import mongoSanitize from "express-mongo-sanitize";
 
 // General — sab routes pe
 export const generalLimiter = rateLimit({
@@ -27,4 +28,12 @@ export const aiLimiter = rateLimit({
   message: { message: "AI request limit reached — try again after 1 hour" },
   standardHeaders: true,
   legacyHeaders: false,
+});
+
+// NoSQL injection protection
+export const mongoSanitizer = mongoSanitize({
+  replaceWith: "_", // $ ko _ se replace karo
+  onSanitize: ({ req, key }) => {
+    console.warn(`NoSQL injection attempt blocked — key: ${key}`);
+  },
 });

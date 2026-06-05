@@ -155,3 +155,13 @@ describe("Input Validation", () => {
     expect(res.status).toBe(400);
   });
 });
+
+it("should block NoSQL injection attempt", async () => {
+  const res = await request(app)
+    .post("/api/auth/login")
+    .send({
+      email: { $gt: "" },
+      password: "anything",
+    });
+  expect(res.status).toBe(400);
+});
