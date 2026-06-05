@@ -1,9 +1,9 @@
+import "./config/env";
 import dns from "dns";
 dns.setDefaultResultOrder("ipv4first");
 
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 import authRoutes from "./routes/auth";
@@ -21,7 +21,6 @@ import morganMiddleware from "./middleware/morganMiddleware";
 import logger from "./utils/logger";
 import compression from "compression";
 
-dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(

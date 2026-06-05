@@ -4,6 +4,7 @@ import Analysis from "../models/Analysis";
 import { analyseResumeVsJD } from "../services/geminiService";
 import { PdfReader } from "pdfreader";
 import logger from "../utils/logger";
+import { deleteCache, getCache, setCache } from "../utils/cache";
 
 const extractTextFromPDF = (buffer: Buffer): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -47,6 +48,7 @@ export const uploadResume = async (
       originalName: req.file.originalname,
       extractedText: extractedText.trim(),
     });
+    await deleteCache(`resumes:${(req as any).userId}`);
     logger.info(
       `Resume uploaded: ${req.file?.originalname} by user ${(req as any).userId}`,
     );
@@ -75,6 +77,17 @@ export const analyseResume = async (
 
   try {
     const { resumeId, jobDescription } = req.body;
+    const userId = (req as any).userId;
+
+    const jdHash = Buffer.from(jobDescription.trim())
+      .toString("base64")
+      .slice(0, 20);
+    const cacheKey = `analysis:${resumeId}:${jdHash}`;
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      res.status(200).json({ analysis: cached, fromCache: true });
+      return;
+    }
 
     if (!resumeId || !jobDescription) {
       logger.error(
@@ -93,22 +106,21 @@ export const analyseResume = async (
       res.status(400).json({ message: "Job description is too short" });
       return;
     }
-
+    logger.info(`[${requestId}] Looking up resume ${resumeId}`);
     // Fetch resume — make sure it belongs to this user
-    console.log(`[${requestId}] Looking up resume ${resumeId}`);
     const resume = await Resume.findOne({
       _id: resumeId,
       userId: (req as any).userId,
     }).maxTimeMS(10000);
 
     if (!resume) {
-      console.warn(`[${requestId}] Resume not found`);
+      logger.error(`[${requestId}] Resume not found`);
       res.status(404).json({ message: "Resume not found" });
       return;
     }
 
-    // Call Gemini API
-    console.log(`[${requestId}] Resume found; starting Groq analysis`);
+    // Call GROQ API
+    logger.info(`[${requestId}] Resume found; starting Groq analysis`);
     const analysisResult = await analyseResumeVsJD(
       resume.extractedText,
       jobDescription,
@@ -124,18 +136,19 @@ export const analyseResume = async (
       ...analysisResult,
     });
     console.log(`[${requestId}] Analysis saved as ${analysis._id}`);
+    const responseData = {
+      id: analysis._id,
+      matchScore: analysis.matchScore,
+      matchedSkills: analysis.matchedSkills,
+      missingSkills: analysis.missingSkills,
+      suggestions: analysis.suggestions,
+      createdAt: analysis.createdAt,
+    };
+    await setCache(cacheKey, responseData, 3600);
 
-    res.status(200).json({
-      message: "Analysis complete",
-      analysis: {
-        id: analysis._id,
-        matchScore: analysis.matchScore,
-        matchedSkills: analysis.matchedSkills,
-        missingSkills: analysis.missingSkills,
-        suggestions: analysis.suggestions,
-        createdAt: analysis.createdAt,
-      },
-    });
+    // Analyses list cache invalidate karo
+    await deleteCache(`analyses:${userId}`);
+    res.status(200).json({ analysis: responseData });
   } catch (error) {
     console.error(`[${requestId}] Analysis error:`, error);
     const errorMessage =
@@ -155,9 +168,21 @@ export const getMyResumes = async (
   res: Response,
 ): Promise<void> => {
   try {
+    const userId = (req as any).userId;
+    const cacheKey = `resumes:${userId}`;
+
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      res.status(200).json({ resumes: cached, fromCache: true });
+      return;
+    }
+
     const resumes = await Resume.find({ userId: (req as any).userId })
       .select("-extractedText") // don't send full text in list
       .sort({ createdAt: -1 });
+
+    // Cache mein save karo — 5 min
+    await setCache(cacheKey, resumes, 300);
 
     res.status(200).json({ resumes });
   } catch (error) {
@@ -171,10 +196,19 @@ export const getMyAnalyses = async (
   res: Response,
 ): Promise<void> => {
   try {
+    const userId = (req as any).userId;
+    const cacheKey = `analyses:${userId}`;
+
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      res.status(200).json({ analyses: cached, fromCache: true });
+      return;
+    }
+
     const analyses = await Analysis.find({ userId: (req as any).userId })
       .sort({ createdAt: -1 })
       .limit(20);
-
+    await setCache(cacheKey, analyses, 300);
     res.status(200).json({ analyses });
   } catch (error) {
     res.status(500).json({ message: "Error fetching analyses" });
