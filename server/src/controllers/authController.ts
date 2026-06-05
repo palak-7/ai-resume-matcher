@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import User from "../models/User";
 import RefreshToken from "../models/RefreshToken";
+import logger from "../utils/logger";
 
 // Access token — 15 minutes
 const generateAccessToken = (id: string): string => {
@@ -59,13 +60,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-
+    logger.info(`New user registered: ${email}`);
     res.status(201).json({
       message: "User registered successfully",
       accessToken,
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
+    logger.error("Register error:", error);
     res.status(500).json({ message: "Server error during registration" });
   }
 };
@@ -106,13 +108,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-
+    logger.info(`User logged in: ${email}`);
     res.status(200).json({
       message: "Login successful",
       accessToken,
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
+    logger.error("Login error:", error);
     res.status(500).json({ message: "Server error during login" });
   }
 };

@@ -3,6 +3,7 @@ import Resume from "../models/Resume";
 import Analysis from "../models/Analysis";
 import { analyseResumeVsJD } from "../services/geminiService";
 import { PdfReader } from "pdfreader";
+import logger from "../utils/logger";
 
 const extractTextFromPDF = (buffer: Buffer): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -46,6 +47,9 @@ export const uploadResume = async (
       originalName: req.file.originalname,
       extractedText: extractedText.trim(),
     });
+    logger.info(
+      `Resume uploaded: ${req.file?.originalname} by user ${(req as any).userId}`,
+    );
 
     res.status(201).json({
       message: "Resume uploaded successfully",
@@ -71,10 +75,11 @@ export const analyseResume = async (
 
   try {
     const { resumeId, jobDescription } = req.body;
-    console.log(`[${requestId}] Analyse controller reached`);
 
     if (!resumeId || !jobDescription) {
-      console.warn(`[${requestId}] Analyse rejected: required fields are missing`);
+      logger.error(
+        `[${requestId}] Analyse rejected: required fields are missing`,
+      );
       res
         .status(400)
         .json({ message: "resumeId and jobDescription are required" });
@@ -82,7 +87,9 @@ export const analyseResume = async (
     }
 
     if (jobDescription.length < 50) {
-      console.warn(`[${requestId}] Analyse rejected: job description is too short`);
+      logger.error(
+        `[${requestId}] Analyse rejected: job description is too short`,
+      );
       res.status(400).json({ message: "Job description is too short" });
       return;
     }

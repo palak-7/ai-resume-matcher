@@ -17,6 +17,8 @@ import {
   mongoSanitizer,
 } from "./middleware/securityMiddleware";
 import cookieParser from "cookie-parser";
+import morganMiddleware from "./middleware/morganMiddleware";
+import logger from "./utils/logger";
 
 dotenv.config();
 const app = express();
@@ -37,6 +39,7 @@ app.use(
 if (process.env.NODE_ENV !== "test") {
   app.use(generalLimiter);
 }
+app.use(morganMiddleware);
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
 app.use((req, res, next) => {
   const requestId = randomUUID().slice(0, 8);
@@ -79,12 +82,34 @@ if (process.env.NODE_ENV !== "test") {
   mongoose
     .connect(process.env.MONGODB_URI || "")
     .then(() => {
-      console.log("MongoDB connected");
+      logger.info("MongoDB connected");
       app.listen(process.env.PORT || 5000, () =>
-        console.log(`Server running on port ${process.env.PORT || 5000}`),
+        logger.info(`Server running on port ${PORT}`),
       );
     })
-    .catch((err) => console.error("MongoDB connection error:", err));
+    .catch((err) => logger.error("MongoDB connection error:", err));
 }
+// Global error handler update karo:
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    if (err.type === "entity.too.large") {
+      return res.status(413).json({
+        message: "Payload too large",
+      });
+    }
 
+    logger.error(`Unhandled error: ${err.message}`, {
+      stack: err.stack,
+    });
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  },
+);
 export default app;
