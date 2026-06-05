@@ -155,7 +155,15 @@ describe("Input Validation", () => {
     expect(res.status).toBe(400);
   });
 });
-
+it("should reject payload larger than 10kb", async () => {
+  const res = await request(app)
+    .post("/api/auth/login")
+    .send({
+      email: "test@test.com",
+      password: "A".repeat(11 * 1024), // 11kb
+    });
+  expect(res.status).toBe(413);
+});
 it("should block NoSQL injection attempt", async () => {
   const res = await request(app)
     .post("/api/auth/login")

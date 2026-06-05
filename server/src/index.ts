@@ -13,6 +13,7 @@ import githubRoutes from "./routes/github";
 import helmet from "helmet";
 import {
   generalLimiter,
+  hppProtection,
   mongoSanitizer,
 } from "./middleware/securityMiddleware";
 
@@ -59,7 +60,10 @@ app.use((req, res, next) => {
 
   next();
 });
-app.use(express.json());
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(mongoSanitizer);
+app.use(hppProtection);
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
@@ -69,7 +73,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/github", githubRoutes);
-app.use(mongoSanitizer);
 if (process.env.NODE_ENV !== "test") {
   mongoose
     .connect(process.env.MONGODB_URI || "")

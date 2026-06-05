@@ -15,13 +15,19 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const { name, email, password } = req.body;
 
     // Validation
-    if (!name || !email || !password) {
+    if (
+      !name ||
+      typeof name !== "string" ||
+      !email ||
+      typeof email !== "string" ||
+      !password ||
+      typeof password !== "string"
+    ) {
       res.status(400).json({ message: "All fields are required" });
       return;
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: String(email).trim() });
     if (existingUser) {
       res.status(400).json({ message: "User already exists with this email" });
       return;
@@ -57,20 +63,24 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
-    // Validation
-    if (!email || !password) {
-      res.status(400).json({ message: "Email and password are required" });
+    // Type check — sanitizer ke baad email object ban sakti hai
+    if (
+      !email ||
+      typeof email !== "string" ||
+      !password ||
+      typeof password !== "string"
+    ) {
+      res.status(400).json({ message: "Invalid credentials" });
       return;
     }
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: String(email).trim() });
     if (!user) {
       res.status(401).json({ message: "Invalid email or password" });
       return;
     }
 
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       res.status(401).json({ message: "Invalid email or password" });
@@ -80,11 +90,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       message: "Login successful",
       token: generateToken(user._id.toString()),
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
     res.status(500).json({ message: "Server error during login" });

@@ -1,39 +1,64 @@
+import { Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
-import mongoSanitize from "express-mongo-sanitize";
+import hpp from "hpp";
 
-// General — sab routes pe
 export const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
-  message: { message: "Too many requests — try again after 15 minutes" },
+  message: { message: "Too many requests - try again after 15 minutes" },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Auth — login/register pe strict
 export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 10,
   skip: () => process.env.NODE_ENV === "test",
-  message: { message: "Too many login attempts — try again after 15 minutes" },
+  message: { message: "Too many login attempts - try again after 15 minutes" },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// AI — Groq API calls pe
 export const aiLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 20,
   skip: () => process.env.NODE_ENV === "test",
-  message: { message: "AI request limit reached — try again after 1 hour" },
+  message: { message: "AI request limit reached - try again after 1 hour" },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// NoSQL injection protection
-export const mongoSanitizer = mongoSanitize({
-  replaceWith: "_", // $ ko _ se replace karo
-  onSanitize: ({ req, key }) => {
-    console.warn(`NoSQL injection attempt blocked — key: ${key}`);
-  },
-});
+const hasMongoOperator = (value: unknown): boolean => {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  if (Array.isArray(value)) {
+    return value.some(hasMongoOperator);
+  }
+
+  return Object.entries(value as Record<string, unknown>).some(
+    ([key, nestedValue]) =>
+      key.startsWith("$") || key.includes(".") || hasMongoOperator(nestedValue),
+  );
+};
+
+export const mongoSanitizer = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  if (
+    hasMongoOperator(req.body) ||
+    hasMongoOperator(req.params) ||
+    hasMongoOperator(req.query)
+  ) {
+    console.warn("NoSQL injection attempt blocked");
+    res.status(400).json({ message: "Invalid request payload" });
+    return;
+  }
+
+  next();
+};
+
+export const hppProtection = hpp();
