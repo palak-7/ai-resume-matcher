@@ -145,10 +145,24 @@ export const refreshAccessToken = async (
         .json({ message: "Refresh token expired — please login again" });
       return;
     }
+    // ── ROTATION — purana token delete karo
+    await RefreshToken.deleteOne({ token: refreshToken });
+
+    // ── Naya refresh token generate karo
+    const newRefreshToken = await generateRefreshToken(
+      storedToken.userId.toString(),
+    );
 
     // Naya access token generate karo
     const accessToken = generateAccessToken(storedToken.userId.toString());
 
+    // ── Naya refresh token cookie mein set karo
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.status(200).json({ accessToken });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
