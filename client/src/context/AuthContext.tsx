@@ -3,6 +3,7 @@ import {
   type ReactNode,
 } from "react";
 import { AuthContext } from "./auth-context";
+import api from "../services/api";
 
 interface User {
   id: string;
@@ -20,22 +21,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem("token");
+    return localStorage.getItem("accessToken");
   });
 
   const login = (newToken: string, newUser: User) => {
-    localStorage.setItem("token", newToken);
+    localStorage.setItem("accessToken", newToken);
     localStorage.setItem("user", JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
-  };
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout')   // server se refresh token delete karo
+    } catch { /* ignore */ }
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('user')
+    setToken(null)
+    setUser(null)
+  }
 
   return (
     <AuthContext.Provider

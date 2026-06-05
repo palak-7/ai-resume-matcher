@@ -55,7 +55,7 @@ beforeAll(async () => {
     email: "palak@test.com",
     password: "Password123",
   });
-  authToken = loginRes.body.token;
+  authToken = loginRes.body.accessToken;
 });
 
 afterAll(async () => {
@@ -127,7 +127,7 @@ describe("POST /api/resume/analyse", () => {
       email: "test2@test.com",
       password: "Password123",
     });
-    const token = regRes.body.token;
+    const token = regRes.body.accessToken;
 
     // Update resume to belong to this user
     const UserModel = mongoose.model("User");

@@ -34,7 +34,7 @@ describe("POST /api/auth/register", () => {
       password: "Password123",
     });
     expect(res.status).toBe(201);
-    expect(res.body).toHaveProperty("token");
+    expect(res.body).toHaveProperty("accessToken");
     expect(res.body.user.email).toBe("palak@test.com");
   });
 
@@ -78,7 +78,7 @@ describe("POST /api/auth/login", () => {
       password: "Password123",
     });
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("token");
+    expect(res.body).toHaveProperty("accessToken");
   });
 
   it("should not login with wrong password", async () => {
@@ -106,7 +106,7 @@ describe("GET /api/auth/me", () => {
       email: "palak@test.com",
       password: "Password123",
     });
-    const token = registerRes.body.token;
+    const token = registerRes.body.accessToken;
 
     const res = await request(app)
       .get("/api/auth/me")
@@ -150,7 +150,7 @@ describe("Input Validation", () => {
     });
     const res = await request(app)
       .post("/api/resume/analyse")
-      .set("Authorization", `Bearer ${loginRes.body.token}`)
+      .set("Authorization", `Bearer ${loginRes.body.accessToken}`)
       .send({ resumeId: "invalid-id", jobDescription: "x".repeat(50) });
     expect(res.status).toBe(400);
   });

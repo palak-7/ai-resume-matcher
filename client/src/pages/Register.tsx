@@ -19,7 +19,7 @@ const Register = () => {
 
     try {
       const res = await api.post("/auth/register", { name, email, password });
-      login(res.data.token, res.data.user);
+      login(res.data.accessToken, res.data.user);
       navigate("/dashboard");
     } catch (err: unknown) {
       if (

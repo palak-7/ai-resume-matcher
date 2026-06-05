@@ -41,7 +41,7 @@ beforeAll(async () => {
     email: "palak@test.com",
     password: "Password123",
   });
-  authToken = res.body.token;
+  authToken = res.body.accessToken;
 });
 
 afterAll(async () => {

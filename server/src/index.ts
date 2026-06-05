@@ -16,6 +16,7 @@ import {
   hppProtection,
   mongoSanitizer,
 } from "./middleware/securityMiddleware";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 const app = express();
@@ -60,6 +61,7 @@ app.use((req, res, next) => {
 
   next();
 });
+app.use(cookieParser());
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(mongoSanitizer);
