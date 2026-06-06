@@ -3,6 +3,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  isVerified: boolean;
 }
 interface AuthContextType {
   user: User | null;

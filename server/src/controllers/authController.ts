@@ -5,6 +5,10 @@ import crypto from "crypto";
 import User from "../models/User";
 import RefreshToken from "../models/RefreshToken";
 import logger from "../utils/logger";
+import {
+  sendPasswordResetEmail,
+  sendVerificationEmail,
+} from "../utils/emailService";
 
 // Access token — 15 minutes
 const generateAccessToken = (id: string): string => {
@@ -48,7 +52,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Verification token generate karo
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
     const user = await User.create({ name, email, password: hashedPassword });
+
+    if (process.env.NODE_ENV !== "test") {
+      await sendVerificationEmail(email, name, verificationToken);
+    }
 
     const accessToken = generateAccessToken(user._id.toString());
     const refreshToken = await generateRefreshToken(user._id.toString());
@@ -62,13 +74,148 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
     logger.info(`New user registered: ${email}`);
     res.status(201).json({
-      message: "User registered successfully",
+      message: "Registration successful — please verify your email",
       accessToken,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        isVerified: user.isVerified,
+      },
     });
   } catch (error) {
     logger.error("Register error:", error);
     res.status(500).json({ message: "Server error during registration" });
+  }
+};
+
+// POST /api/auth/verify-email
+export const verifyEmail = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      res.status(400).json({ message: "Verification token is required" });
+      return;
+    }
+
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpiry: { $gt: new Date() },
+    });
+
+    if (!user) {
+      res
+        .status(400)
+        .json({ message: "Invalid or expired verification token" });
+      return;
+    }
+
+    user.isVerified = true;
+    user.verificationToken = null;
+    user.verificationTokenExpiry = null;
+    await user.save();
+
+    logger.info(`Email verified: ${user.email}`);
+    res.status(200).json({ message: "Email verified successfully" });
+  } catch (error) {
+    logger.error("Email verification error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ message: "Email is required" });
+      return;
+    }
+
+    const user = await User.findOne({ email });
+
+    // Security: always return success even if email not found
+    if (!user) {
+      res
+        .status(200)
+        .json({ message: "If that email exists, a reset link has been sent" });
+      return;
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiry = resetExpiry;
+    await user.save();
+
+    if (process.env.NODE_ENV !== "test") {
+      await sendPasswordResetEmail(email, user.name, resetToken);
+    }
+
+    logger.info(`Password reset requested: ${email}`);
+    res
+      .status(200)
+      .json({ message: "If that email exists, a reset link has been sent" });
+  } catch (error) {
+    logger.error("Forgot password error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// POST /api/auth/reset-password
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      res.status(400).json({ message: "Token and new password are required" });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters" });
+      return;
+    }
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiry: { $gt: new Date() },
+    });
+
+    if (!user) {
+      res.status(400).json({ message: "Invalid or expired reset token" });
+      return;
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpiry = null;
+    await user.save();
+
+    // Sab refresh tokens delete karo — security
+    await RefreshToken.deleteMany({ userId: user._id });
+
+    logger.info(`Password reset successful: ${user.email}`);
+    res
+      .status(200)
+      .json({ message: "Password reset successful — please login again" });
+  } catch (error) {
+    logger.error("Reset password error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 

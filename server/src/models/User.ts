@@ -5,6 +5,11 @@ export interface IUser extends Document {
   email: string;
   password: string;
   createdAt: Date;
+  isVerified: boolean;
+  verificationToken: string | null;
+  verificationTokenExpiry: Date | null;
+  resetPasswordToken: string | null;
+  resetPasswordExpiry: Date | null;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -27,6 +32,28 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
+    },
+    // ── Email verification
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      default: null,
+    },
+    verificationTokenExpiry: {
+      type: Date,
+      default: null,
+    },
+    // ── Password reset
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpiry: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true },

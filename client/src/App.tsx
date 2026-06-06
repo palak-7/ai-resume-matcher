@@ -10,6 +10,9 @@ import Analyse from './pages/Analyse'
 import { useAuth } from './context/useAuth'
 import History from './pages/History'
 import GitHubCallback from './pages/GitHubCallback'
+import VerifyEmail from './pages/VerifyEmail'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 
 // Navbar sirf logged-in pages pe dikhao
 const AppLayout = () => {
@@ -34,6 +37,9 @@ const AppLayout = () => {
           <ProtectedRoute><History /></ProtectedRoute>
         } />
         <Route path="/github-callback" element={<GitHubCallback />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>

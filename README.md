@@ -7,6 +7,10 @@ AI-powered resume analyser — match your resume against job descriptions using 
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=YOUR_USERNAME_ai-resume-matcher&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=YOUR_USERNAME_ai-resume-matcher)
 
+## API Documentation
+
+Interactive API docs available at: `http://localhost:5000/api/docs`
+
 ## Features
 
 - PDF resume upload + text extraction

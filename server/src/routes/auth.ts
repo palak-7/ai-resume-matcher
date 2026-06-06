@@ -5,6 +5,9 @@ import {
   getMe,
   refreshAccessToken,
   logout,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/authController";
 import { protect } from "../middleware/authMiddleware";
 import { authLimiter } from "../middleware/securityMiddleware";
@@ -143,5 +146,107 @@ router.post("/logout", logout);
  *         description: Not authorized
  */
 router.get("/me", protect, getMe); // protected route
+
+/**
+ * @swagger
+ * /api/auth/verify-email:
+ *   post:
+ *     summary: Verify user email address
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token]
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: abc123verificationtoken
+ *     responses:
+ *       200:
+ *         description: Email verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Email verified successfully
+ *       400:
+ *         description: Invalid or expired verification token
+ */
+router.post("/verify-email", verifyEmail);
+
+/**
+ * @swagger
+ * /api/auth/forgot-password:
+ *   post:
+ *     summary: Request password reset link
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: palak@example.com
+ *     responses:
+ *       200:
+ *         description: If the email exists, a reset link has been sent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: If the email exists, a reset link has been sent
+ *       400:
+ *         description: Email is required
+ */
+router.post("/forgot-password", forgotPassword);
+
+/**
+ * @swagger
+ * /api/auth/reset-password:
+ *   post:
+ *     summary: Reset password using reset token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, password]
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: abc123resettoken
+ *               password:
+ *                 type: string
+ *                 example: NewPassword123
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password reset successfully
+ *       400:
+ *         description: Invalid or expired reset token
+ */
+router.post("/reset-password", resetPassword);
 
 export default router;

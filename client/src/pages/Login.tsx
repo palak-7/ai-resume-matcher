@@ -83,7 +83,14 @@ const Login = () => {
               required
             />
           </div>
-
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Password
+            </label>
+            <Link to="/forgot-password" className="text-xs text-blue-600 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           <button
             type="submit"
             disabled={loading}
