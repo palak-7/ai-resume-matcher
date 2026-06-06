@@ -20,7 +20,8 @@ import cookieParser from "cookie-parser";
 import morganMiddleware from "./middleware/morganMiddleware";
 import logger from "./utils/logger";
 import compression from "compression";
-
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./utils/swagger";
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(
@@ -101,6 +102,19 @@ if (process.env.NODE_ENV !== "test") {
     })
     .catch((err) => logger.error("MongoDB connection error:", err));
 }
+
+if (process.env.NODE_ENV !== "production") {
+  app.use(
+    "/api/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, {
+      customCss: ".swagger-ui .topbar { display: none }",
+      customSiteTitle: "AI Resume Matcher API Docs",
+    }),
+  );
+  logger.info("Swagger docs available at http://localhost:5000/api/docs");
+}
+
 // Global error handler update karo:
 app.use(
   (
