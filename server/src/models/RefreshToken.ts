@@ -29,6 +29,11 @@ const RefreshTokenSchema = new Schema<IRefreshToken>(
 
 // Auto delete expired tokens — MongoDB TTL index
 RefreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+// Token se lookup — most frequent query
+RefreshTokenSchema.index({ token: 1 }, { unique: true }); // already unique, explicit karo
+
+// User ke saare tokens delete karna — logout pe
+RefreshTokenSchema.index({ userId: 1 });
 
 export default mongoose.model<IRefreshToken>(
   "RefreshToken",

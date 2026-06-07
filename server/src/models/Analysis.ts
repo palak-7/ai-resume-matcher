@@ -28,5 +28,12 @@ const AnalysisSchema = new Schema<IAnalysis>(
   },
   { timestamps: true },
 );
+// User ki analyses fetch karna
+AnalysisSchema.index({ userId: 1, createdAt: -1 });
 
+// Resume ki analyses fetch karna
+AnalysisSchema.index({ resumeId: 1 });
+
+// Cache miss ke baad same analysis dhundna
+AnalysisSchema.index({ resumeId: 1, userId: 1 });
 export default mongoose.model<IAnalysis>("Analysis", AnalysisSchema);

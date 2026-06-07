@@ -69,5 +69,11 @@ const UserSchema = new Schema<IUser>(
   },
   { timestamps: true },
 );
+// Existing indexes
+UserSchema.index({ email: 1 }, { unique: true }); // already unique hai but explicit karo
 
+// New indexes
+UserSchema.index({ verificationToken: 1 }, { sparse: true }); // sparse — null values skip
+UserSchema.index({ resetPasswordToken: 1 }, { sparse: true });
+UserSchema.index({ createdAt: -1 }); // newest users first queries ke liye
 export default mongoose.model<IUser>("User", UserSchema);

@@ -26,5 +26,9 @@ const ResumeSchema = new Schema<IResume>(
   },
   { timestamps: true },
 );
+// User ke saare resumes fetch karna — most common query
+ResumeSchema.index({ userId: 1, createdAt: -1 });
 
+// Single resume fetch by id + userId — security check ke saath
+ResumeSchema.index({ _id: 1, userId: 1 });
 export default mongoose.model<IResume>("Resume", ResumeSchema);
