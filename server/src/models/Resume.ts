@@ -4,6 +4,8 @@ export interface IResume extends Document {
   userId: mongoose.Types.ObjectId;
   originalName: string;
   extractedText: string;
+  fileUrl: string | null; // ← Cloudinary URL
+  cloudinaryPublicId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +24,14 @@ const ResumeSchema = new Schema<IResume>(
     extractedText: {
       type: String,
       required: true,
+    },
+    fileUrl: {
+      type: String,
+      default: null,
+    },
+    cloudinaryPublicId: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true },

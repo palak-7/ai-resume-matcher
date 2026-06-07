@@ -5,6 +5,7 @@ interface UploadedResume {
     id: string
     originalName: string
     textLength: number
+    fileUrl?: string
 }
 
 interface PDFUploadProps {
@@ -73,6 +74,17 @@ const PDFUpload = ({ onUploadSuccess }: PDFUploadProps) => {
                         <p className="text-green-600 dark:text-green-300 text-xs mt-0.5">
                             {(uploaded.textLength / 1000).toFixed(1)}k characters extracted
                         </p>
+                        {/* Cloudinary URL show karo */}
+                        {uploaded.fileUrl && (
+                            <a
+                                href={uploaded.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-600 hover:underline mt-1 inline-block"
+                            >
+                                View uploaded PDF ↗
+                            </a>
+                        )}
                     </div>
                     <button
                         onClick={() => { setUploaded(null); setError('') }}
@@ -81,7 +93,7 @@ const PDFUpload = ({ onUploadSuccess }: PDFUploadProps) => {
                         Change
                     </button>
                 </div>
-            </div>
+            </div >
         )
     }
 

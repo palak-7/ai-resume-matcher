@@ -6,6 +6,7 @@ import {
   analyseResume,
   getMyResumes,
   getMyAnalyses,
+  deleteResume,
 } from "../controllers/resumeController";
 import {
   analyseValidation,
@@ -165,5 +166,27 @@ router.get("/my-resumes", protect, getMyResumes);
  *                     $ref: '#/components/schemas/Analysis'
  */
 router.get("/analyses", protect, getMyAnalyses);
+
+/**
+ * @swagger
+ * /api/resume/{id}:
+ *   delete:
+ *     summary: Delete a resume
+ *     tags: [Resume]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Resume deleted
+ *       404:
+ *         description: Resume not found
+ */
+router.delete("/:id", protect, deleteResume);
 
 export default router;

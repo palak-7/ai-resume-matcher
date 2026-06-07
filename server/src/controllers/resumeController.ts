@@ -5,6 +5,10 @@ import { analyseResumeVsJD } from "../services/geminiService";
 import { PdfReader } from "pdfreader";
 import logger from "../utils/logger";
 import { deleteCache, getCache, setCache } from "../utils/cache";
+import {
+  deletePDFFromCloudinary,
+  uploadPDFToCloudinary,
+} from "../utils/cloudinary";
 
 const extractTextFromPDF = (buffer: Buffer): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -43,6 +47,27 @@ export const uploadResume = async (
       return;
     }
 
+    // Cloudinary pe upload karo
+    let fileUrl = null;
+    let cloudinaryPublicId = null;
+
+    if (process.env.NODE_ENV !== "test") {
+      try {
+        const cloudinaryResult = await uploadPDFToCloudinary(
+          req.file.buffer,
+          req.file.originalname,
+          (req as any).userId,
+        );
+        fileUrl = cloudinaryResult.url;
+        cloudinaryPublicId = cloudinaryResult.publicId;
+      } catch (uploadError) {
+        logger.warn(
+          "Cloudinary upload failed, continuing without cloud storage:",
+          uploadError,
+        );
+      }
+    }
+
     const resume = await Resume.create({
       userId: (req as any).userId,
       originalName: req.file.originalname,
@@ -58,6 +83,7 @@ export const uploadResume = async (
       resume: {
         id: resume._id,
         originalName: resume.originalName,
+        fileUrl: resume.fileUrl,
         textLength: extractedText.trim().length,
         createdAt: resume.createdAt,
       },
@@ -159,6 +185,40 @@ export const analyseResume = async (
       message: "Error analysing resume",
       error: errorMessage,
     });
+  }
+};
+
+// Resume delete karo — Cloudinary se bhi
+export const deleteResume = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = (req as any).userId;
+
+    const resume = await Resume.findOne({ _id: id, userId });
+    if (!resume) {
+      res.status(404).json({ message: "Resume not found" });
+      return;
+    }
+
+    // Cloudinary se delete karo
+    if (resume.cloudinaryPublicId) {
+      await deletePDFFromCloudinary(resume.cloudinaryPublicId);
+    }
+
+    // DB se delete karo
+    await Resume.deleteOne({ _id: id });
+
+    // Cache invalidate
+    await deleteCache(`resumes:${userId}`);
+
+    logger.info(`Resume deleted: ${id} by user ${userId}`);
+    res.status(200).json({ message: "Resume deleted successfully" });
+  } catch (error) {
+    logger.error("Delete resume error:", error);
+    res.status(500).json({ message: "Error deleting resume" });
   }
 };
 
