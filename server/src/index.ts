@@ -53,7 +53,14 @@ if (process.env.NODE_ENV !== "test") {
   app.use(generalLimiter);
 }
 app.use(morganMiddleware);
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true, // ← ye add karo — withCredentials ke liye zaroori hai
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-github-token"],
+  }),
+);
 app.use((req, res, next) => {
   const requestId = randomUUID().slice(0, 8);
   const startedAt = Date.now();

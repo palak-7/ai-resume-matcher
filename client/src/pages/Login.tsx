@@ -50,7 +50,11 @@ const Login = () => {
         <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">Sign in to your account</p>
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-4 text-sm">
+          <div className={`px-4 py-3 rounded-lg mb-4 text-sm border ${error.includes('locked')
+              ? 'bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400'
+              : 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400'
+            }`}>
+            {error.includes('locked') && <span className="mr-1">🔒</span>}
             {error}
           </div>
         )}

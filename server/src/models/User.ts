@@ -10,6 +10,9 @@ export interface IUser extends Document {
   verificationTokenExpiry: Date | null;
   resetPasswordToken: string | null;
   resetPasswordExpiry: Date | null;
+  // ── Account lockout
+  failedLoginAttempts: number;
+  lockUntil: Date | null;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -52,6 +55,14 @@ const UserSchema = new Schema<IUser>(
       default: null,
     },
     resetPasswordExpiry: {
+      type: Date,
+      default: null,
+    },
+    failedLoginAttempts: {
+      type: Number,
+      default: 0,
+    },
+    lockUntil: {
       type: Date,
       default: null,
     },

@@ -173,3 +173,75 @@ it("should block NoSQL injection attempt", async () => {
     });
   expect(res.status).toBe(400);
 });
+
+describe("Account Lockout", () => {
+  beforeEach(async () => {
+    await request(app).post("/api/auth/register").send({
+      name: "Palak",
+      email: "palak@test.com",
+      password: "Password123",
+    });
+  });
+
+  it("should track failed attempts and warn user", async () => {
+    const res = await request(app).post("/api/auth/login").send({
+      email: "palak@test.com",
+      password: "WrongPass123",
+    });
+    expect(res.status).toBe(401);
+    expect(res.body.message).toMatch(/attempts remaining/i);
+  });
+
+  it("should lock account after 5 failed attempts", async () => {
+    // 5 failed attempts
+    for (let i = 0; i < 5; i++) {
+      await request(app).post("/api/auth/login").send({
+        email: "palak@test.com",
+        password: "WrongPass123",
+      });
+    }
+
+    // 6th attempt — should be locked
+    const res = await request(app).post("/api/auth/login").send({
+      email: "palak@test.com",
+      password: "WrongPass123",
+    });
+    expect(res.status).toBe(423);
+    expect(res.body.message).toMatch(/locked/i);
+  });
+
+  it("should reset failed attempts on successful login", async () => {
+    // 2 failed attempts
+    for (let i = 0; i < 2; i++) {
+      await request(app).post("/api/auth/login").send({
+        email: "palak@test.com",
+        password: "WrongPass123",
+      });
+    }
+
+    // Successful login
+    const res = await request(app).post("/api/auth/login").send({
+      email: "palak@test.com",
+      password: "Password123",
+    });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("accessToken");
+  });
+
+  it("should not allow login when account is locked", async () => {
+    // Lock account
+    for (let i = 0; i < 5; i++) {
+      await request(app).post("/api/auth/login").send({
+        email: "palak@test.com",
+        password: "WrongPass123",
+      });
+    }
+
+    // Even correct password should not work
+    const res = await request(app).post("/api/auth/login").send({
+      email: "palak@test.com",
+      password: "Password123",
+    });
+    expect(res.status).toBe(423);
+  });
+});

@@ -10,6 +10,9 @@ import {
   sendVerificationEmail,
 } from "../utils/emailService";
 
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCK_DURATION_MS = 30 * 60 * 1000; // 30 minutes
+
 // Access token — 15 minutes
 const generateAccessToken = (id: string): string => {
   return jwt.sign({ id }, process.env.JWT_SECRET || "fallback_secret", {
@@ -239,12 +242,53 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       res.status(401).json({ message: "Invalid email or password" });
       return;
     }
+    // ── Check lockout
+    if (user.lockUntil && user.lockUntil > new Date()) {
+      const minutesLeft = Math.ceil(
+        (user.lockUntil.getTime() - Date.now()) / 60000,
+      );
+      logger.warn(`Locked account login attempt: ${email}`);
+      res.status(423).json({
+        message: `Account locked — too many failed attempts. Try again in ${minutesLeft} minute${minutesLeft > 1 ? "s" : ""}.`,
+      });
+      return;
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      res.status(401).json({ message: "Invalid email or password" });
+      user.failedLoginAttempts += 1;
+
+      if (user.failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
+        // Lock the account
+        user.lockUntil = new Date(Date.now() + LOCK_DURATION_MS);
+        user.failedLoginAttempts = 0;
+        await user.save();
+
+        logger.warn(
+          `Account locked after ${MAX_FAILED_ATTEMPTS} failed attempts: ${email}`,
+        );
+        res.status(423).json({
+          message:
+            "Account locked for 30 minutes due to too many failed login attempts.",
+        });
+        return;
+      }
+      await user.save();
+
+      const attemptsLeft = MAX_FAILED_ATTEMPTS - user.failedLoginAttempts;
+      logger.warn(
+        `Failed login attempt ${user.failedLoginAttempts}/${MAX_FAILED_ATTEMPTS}: ${email}`,
+      );
+
+      res.status(401).json({
+        message: `Invalid email or password. ${attemptsLeft} attempt${attemptsLeft > 1 ? "s" : ""} remaining before lockout.`,
+      });
       return;
     }
+    // ── Successful login — reset lockout fields
+    user.failedLoginAttempts = 0;
+    user.lockUntil = null;
+    await user.save();
 
     const accessToken = generateAccessToken(user._id.toString());
     const refreshToken = await generateRefreshToken(user._id.toString());
