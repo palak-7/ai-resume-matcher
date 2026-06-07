@@ -22,6 +22,7 @@ import logger from "./utils/logger";
 import compression from "compression";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./utils/swagger";
+import healthRoutes from "./routes/health";
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(
@@ -90,9 +91,10 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(mongoSanitizer);
 app.use(hppProtection);
 
-app.get("/health", (req, res) => {
-  res.json({ status: "ok", message: "Server is running" });
-});
+// app.get("/health", (req, res) => {
+//   res.json({ status: "ok", message: "Server is running" });
+// });
+app.use("/health", healthRoutes);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
