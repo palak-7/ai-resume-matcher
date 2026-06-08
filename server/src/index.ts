@@ -1,4 +1,4 @@
-import "./config/env";
+import config from "./utils/config";
 import dns from "dns";
 dns.setDefaultResultOrder("ipv4first");
 
@@ -24,7 +24,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./utils/swagger";
 import healthRoutes from "./routes/health";
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = config.port;
 app.use(
   helmet({
     contentSecurityPolicy: {

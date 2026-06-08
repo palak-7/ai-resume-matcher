@@ -1,13 +1,14 @@
 import { Redis } from "@upstash/redis";
 import logger from "./logger";
+import config from "./config";
 
 // Test environment mein Redis skip karo
 const isTest = process.env.NODE_ENV === "test";
 
-const redis = !isTest
+const redis = !config.isTest
   ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL || "",
-      token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
+      url: config.redis.url,
+      token: config.redis.token,
     })
   : null;
 // Cache se data lo

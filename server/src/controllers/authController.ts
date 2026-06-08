@@ -9,13 +9,14 @@ import {
   sendPasswordResetEmail,
   sendVerificationEmail,
 } from "../utils/emailService";
+import config from "../utils/config";
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 30 * 60 * 1000; // 30 minutes
 
 // Access token — 15 minutes
 const generateAccessToken = (id: string): string => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || "fallback_secret", {
+  return jwt.sign({ id }, config.auth.jwtSecret || "fallback_secret", {
     expiresIn: "15m",
   });
 };
@@ -71,7 +72,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     // Refresh token httpOnly cookie mein set karo — JS access nahi kar sakta
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: config.isProduction,
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });

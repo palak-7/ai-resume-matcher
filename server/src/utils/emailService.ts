@@ -1,7 +1,8 @@
 import { Resend } from "resend";
 import logger from "./logger";
+import config from "./config";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(config.email.resendApiKey);
 
 const FROM_EMAIL = "AI Resume Matcher <onboarding@resend.dev>"; // resend default sender
 

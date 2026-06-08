@@ -1,5 +1,6 @@
 import winston from "winston";
 import path from "path";
+import config from "./config";
 
 const { combine, timestamp, printf, colorize, errors } = winston.format;
 
@@ -13,7 +14,7 @@ const logger = winston.createLogger({
     ...winston.config.npm.levels,
     http: 5, // http level add karo morgan ke liye
   },
-  level: process.env.NODE_ENV === "production" ? "info" : "debug",
+  level: config.logging.level,
   format: combine(
     timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     errors({ stack: true }), // error stack trace capture karo
