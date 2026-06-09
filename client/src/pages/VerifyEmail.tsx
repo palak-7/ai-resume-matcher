@@ -1,20 +1,27 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
+import { useAuth } from '../context/useAuth'
 
 const VerifyEmail = () => {
     const [searchParams] = useSearchParams()
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
     const navigate = useNavigate()
+    const { isAuthenticated, refreshUser } = useAuth()
 
     useEffect(() => {
         const token = searchParams.get('token')
         if (!token) { setStatus('error'); return }
 
         api.post('/auth/verify-email', { token })
-            .then(() => setStatus('success'))
+            .then(async () => {
+                if (isAuthenticated) {
+                    await refreshUser()
+                }
+                setStatus('success')
+            })
             .catch(() => setStatus('error'))
-    }, [])
+    }, [isAuthenticated, refreshUser, searchParams])
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">

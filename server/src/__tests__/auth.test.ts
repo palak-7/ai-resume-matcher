@@ -2,7 +2,9 @@ import request from "supertest";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import app from "../index";
-
+import * as emailService from "../utils/emailService";
+import User from "../models/User";
+jest.spyOn(emailService, "sendVerificationEmail").mockResolvedValue(undefined);
 let mongoServer: MongoMemoryServer;
 
 // Real MongoDB ki jagah in-memory DB use karo — tests fast aur isolated rehte hain
@@ -243,5 +245,83 @@ describe("Account Lockout", () => {
       password: "Password123",
     });
     expect(res.status).toBe(423);
+  });
+});
+
+describe("POST /api/auth/resend-verification", () => {
+  let token: string;
+
+  beforeEach(async () => {
+    const registerRes = await request(app).post("/api/auth/register").send({
+      name: "Palak",
+      email: "palak@test.com",
+      password: "Password123",
+    });
+
+    token = registerRes.body.accessToken;
+  });
+
+  it("should resend verification email successfully", async () => {
+    const res = await request(app)
+      .post("/api/auth/resend-verification")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe("Verification email sent successfully");
+  });
+
+  it("should reject unauthenticated requests", async () => {
+    const res = await request(app).post("/api/auth/resend-verification");
+
+    expect(res.status).toBe(401);
+  });
+
+  it("should reject already verified users", async () => {
+    const registerRes = await request(app).post("/api/auth/register").send({
+      name: "Verified User",
+      email: "verified@test.com",
+      password: "Password123",
+    });
+
+    const verifiedToken = registerRes.body.accessToken;
+
+    await User.updateOne({ email: "verified@test.com" }, { isVerified: true });
+
+    const res = await request(app)
+      .post("/api/auth/resend-verification")
+      .set("Authorization", `Bearer ${verifiedToken}`);
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/already verified/i);
+  });
+
+  it("should rate limit resend requests", async () => {
+    await request(app)
+      .post("/api/auth/resend-verification")
+      .set("Authorization", `Bearer ${token}`);
+
+    const res = await request(app)
+      .post("/api/auth/resend-verification")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(429);
+    expect(res.body.message).toMatch(/wait/i);
+  });
+  it("should generate a new verification token", async () => {
+    const before = await User.findOne({
+      email: "palak@test.com",
+    });
+
+    const oldToken = before?.verificationToken;
+
+    await request(app)
+      .post("/api/auth/resend-verification")
+      .set("Authorization", `Bearer ${token}`);
+
+    const after = await User.findOne({
+      email: "palak@test.com",
+    });
+
+    expect(after?.verificationToken).not.toBe(oldToken);
   });
 });

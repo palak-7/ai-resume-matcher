@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
+import { useAuth } from '../context/useAuth'
+import { getGitHubToken } from '../utils/githubToken'
 
 interface Repo {
     id: number
@@ -11,6 +13,7 @@ interface Repo {
 }
 
 const RepoBulletGenerator = () => {
+    const { user } = useAuth()
     const [repos, setRepos] = useState<Repo[]>([])
     const [selectedRepo, setSelectedRepo] = useState<Repo | null>(null)
     const [bullets, setBullets] = useState<string[]>([])
@@ -18,7 +21,7 @@ const RepoBulletGenerator = () => {
     const [fetching, setFetching] = useState(false)
     const [copied, setCopied] = useState<number | null>(null)
 
-    const githubToken = localStorage.getItem('github_token')
+    const githubToken = getGitHubToken(user)
     const fetchRepos = async () => {
         setFetching(true)
 

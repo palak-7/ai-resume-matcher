@@ -34,7 +34,6 @@ const generateRefreshToken = async (userId: string): Promise<string> => {
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password } = req.body;
-
     if (
       !name ||
       typeof name !== "string" ||
@@ -58,9 +57,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     // Verification token generate karo
     const verificationToken = crypto.randomBytes(32).toString("hex");
-    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-    const user = await User.create({ name, email, password: hashedPassword });
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      verificationToken,
+      verificationTokenExpiry,
+    });
 
     if (process.env.NODE_ENV !== "test") {
       await sendVerificationEmail(email, name, verificationToken);
@@ -92,7 +96,54 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Server error during registration" });
   }
 };
+export const resendVerificationEmail = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const user = await User.findById((req as any).userId);
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+      });
+      return;
+    }
+    if (user.isVerified) {
+      res.status(400).json({
+        message: "Email already verified",
+      });
+      return;
+    }
+    if (
+      user.lastVerificationEmailSentAt &&
+      Date.now() - user.lastVerificationEmailSentAt.getTime() < 60 * 1000
+    ) {
+      res.status(429).json({
+        message: "Please wait 1 minute before requesting another email",
+      });
+      return;
+    }
+    const verificationToken = crypto.randomBytes(32).toString("hex");
 
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpiry = verificationTokenExpiry;
+    user.lastVerificationEmailSentAt = new Date();
+    await user.save();
+
+    await sendVerificationEmail(user.email, user.name, verificationToken);
+    res.status(200).json({
+      message: "Verification email sent successfully",
+    });
+  } catch (error) {
+    logger.error("Resend verification error:", error);
+
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
 // POST /api/auth/verify-email
 export const verifyEmail = async (
   req: Request,
@@ -100,7 +151,6 @@ export const verifyEmail = async (
 ): Promise<void> => {
   try {
     const { token } = req.body;
-
     if (!token) {
       res.status(400).json({ message: "Verification token is required" });
       return;
@@ -304,7 +354,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       message: "Login successful",
       accessToken,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        isVerified: user.isVerified,
+      },
     });
   } catch (error) {
     logger.error("Login error:", error);

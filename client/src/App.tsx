@@ -13,6 +13,7 @@ import GitHubCallback from './pages/GitHubCallback'
 import VerifyEmail from './pages/VerifyEmail'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import { Toaster } from 'react-hot-toast'
 
 // Navbar sirf logged-in pages pe dikhao
 const AppLayout = () => {
@@ -24,6 +25,12 @@ const AppLayout = () => {
   return (
     <>
       {isAuthenticated && !hideNavbar && <Navbar />}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+        }}
+      />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

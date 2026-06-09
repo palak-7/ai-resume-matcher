@@ -13,6 +13,7 @@ export interface IUser extends Document {
   // ── Account lockout
   failedLoginAttempts: number;
   lockUntil: Date | null;
+  lastVerificationEmailSentAt: Date | null;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -63,6 +64,10 @@ const UserSchema = new Schema<IUser>(
       default: 0,
     },
     lockUntil: {
+      type: Date,
+      default: null,
+    },
+    lastVerificationEmailSentAt: {
       type: Date,
       default: null,
     },

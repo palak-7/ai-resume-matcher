@@ -1,16 +1,16 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import logger from "./logger";
 import config from "./config";
 
-const FROM_EMAIL = "AI Resume Matcher <onboarding@resend.dev>"; // resend default sender
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_APP_PASSWORD,
+  },
+});
 
-const getResendClient = (): Resend => {
-  if (!config.email.resendApiKey) {
-    throw new Error("RESEND_API_KEY is required to send emails");
-  }
-
-  return new Resend(config.email.resendApiKey);
-};
+const FROM_EMAIL = process.env.EMAIL_USER!;
 
 export const sendVerificationEmail = async (
   email: string,
@@ -20,9 +20,8 @@ export const sendVerificationEmail = async (
   const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
 
   try {
-    const resend = getResendClient();
-    await resend.emails.send({
-      from: FROM_EMAIL,
+    await transporter.sendMail({
+      from: `"AI Resume Matcher" <${FROM_EMAIL}>`,
       to: email,
       subject: "Verify your email — AI Resume Matcher",
       html: `
@@ -67,9 +66,8 @@ export const sendPasswordResetEmail = async (
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
   try {
-    const resend = getResendClient();
-    await resend.emails.send({
-      from: FROM_EMAIL,
+    await transporter.sendMail({
+      from: `"AI Resume Matcher" <${FROM_EMAIL}>`,
       to: email,
       subject: "Reset your password — AI Resume Matcher",
       html: `
