@@ -10,6 +10,10 @@ import {
   sendVerificationEmail,
 } from "../utils/emailService";
 import config from "../utils/config";
+import Resume from "../models/Resume";
+import { deletePDFFromCloudinary } from "../utils/cloudinary";
+import Analysis from "../models/Analysis";
+import { deleteCache } from "../utils/cache";
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 30 * 60 * 1000; // 30 minutes
@@ -451,5 +455,57 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({ user });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// DELETE /api/auth/delete-account
+export const deleteAccount = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const userId = (req as any).userId;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    // Cloudinary se saare PDFs delete karo
+    const userResumes = await Resume.find({ userId });
+    for (const resume of userResumes) {
+      if (resume.cloudinaryPublicId) {
+        await deletePDFFromCloudinary(resume.cloudinaryPublicId);
+      }
+    }
+
+    // Saara user data delete karo — order matters
+    await Promise.all([
+      Resume.deleteMany({ userId }),
+      Analysis.deleteMany({ userId }),
+      RefreshToken.deleteMany({ userId }),
+    ]);
+
+    // User delete karo
+    await User.findByIdAndDelete(userId);
+
+    // Cookie clear karo
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: config.isProduction,
+      sameSite: "strict",
+    });
+
+    // Cache invalidate karo
+    await deleteCache(`resumes:${userId}`);
+    await deleteCache(`analyses:${userId}`);
+
+    logger.info(`Account deleted: ${user.email}`);
+
+    res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    logger.error("Delete account error:", error);
+    res.status(500).json({ message: "Server error during account deletion" });
   }
 };

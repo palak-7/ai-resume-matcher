@@ -15,6 +15,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import { Toaster } from 'react-hot-toast'
 import Landing from './pages/Landing'
+import Settings from './pages/Settings'
 
 // Navbar sirf logged-in pages pe dikhao
 const AppLayout = () => {
@@ -44,6 +45,9 @@ const AppLayout = () => {
         } />
         <Route path="/history" element={
           <ProtectedRoute><History /></ProtectedRoute>
+        } />
+        <Route path="/settings" element={
+          <ProtectedRoute><Settings /></ProtectedRoute>
         } />
         <Route path="/github-callback" element={<GitHubCallback />} />
         <Route path="/verify-email" element={<VerifyEmail />} />

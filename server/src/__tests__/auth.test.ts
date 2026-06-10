@@ -325,3 +325,50 @@ describe("POST /api/auth/resend-verification", () => {
     expect(after?.verificationToken).not.toBe(oldToken);
   });
 });
+
+describe("DELETE /api/auth/delete-account", () => {
+  it("should reject without auth", async () => {
+    const res = await request(app).delete("/api/auth/delete-account");
+    expect(res.status).toBe(401);
+  });
+
+  it("should delete account and all user data", async () => {
+    // Register karo
+    const regRes = await request(app).post("/api/auth/register").send({
+      name: "Delete Me",
+      email: "deleteme@test.com",
+      password: "Password123",
+    });
+    const token = regRes.body.accessToken;
+
+    // Delete karo
+    const res = await request(app)
+      .delete("/api/auth/delete-account")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toMatch(/deleted successfully/i);
+  });
+
+  it("should not allow login after deletion", async () => {
+    // Register karo
+    const regRes = await request(app).post("/api/auth/register").send({
+      name: "Delete Me",
+      email: "deleteme2@test.com",
+      password: "Password123",
+    });
+    const token = regRes.body.accessToken;
+
+    // Delete karo
+    await request(app)
+      .delete("/api/auth/delete-account")
+      .set("Authorization", `Bearer ${token}`);
+
+    // Login try karo — fail hona chahiye
+    const loginRes = await request(app).post("/api/auth/login").send({
+      email: "deleteme2@test.com",
+      password: "Password123",
+    });
+    expect(loginRes.status).toBe(401);
+  });
+});

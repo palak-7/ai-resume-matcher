@@ -165,7 +165,7 @@ const Landing = () => {
                         />
 
                         {/* Locked features CTA */}
-                        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
+                        <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
                             <div className="text-center mb-4">
                                 <p className="text-lg font-bold text-gray-900 dark:text-white mb-1">
                                     🔒 {result.suggestionsCount} AI suggestions waiting

@@ -9,6 +9,7 @@ import {
   forgotPassword,
   resetPassword,
   resendVerificationEmail,
+  deleteAccount,
 } from "../controllers/authController";
 import { protect } from "../middleware/authMiddleware";
 import { authLimiter } from "../middleware/securityMiddleware";
@@ -279,5 +280,34 @@ router.post("/reset-password", resetPassword);
  *         description: Server error
  */
 router.post("/resend-verification", protect, resendVerificationEmail);
+
+/**
+ * @swagger
+ * /api/auth/delete-account:
+ *   delete:
+ *     summary: Delete the authenticated user's account
+ *     description: Permanently deletes the user's account and associated data.
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Account deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Account deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.delete("/delete-account", protect, deleteAccount);
 
 export default router;
