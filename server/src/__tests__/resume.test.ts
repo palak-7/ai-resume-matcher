@@ -180,3 +180,64 @@ describe("GET /api/resume/analyses", () => {
     expect(res.body.analyses).toEqual([]);
   });
 });
+
+// ── PUBLIC ANALYSE TESTS ──────────────────────────────────────────────────────
+describe("POST /api/resume/public-analyse", () => {
+  it("should analyse without auth token", async () => {
+    const res = await request(app).post("/api/resume/public-analyse").send({
+      resumeText:
+        "Experienced React TypeScript Node.js developer with 3 years of experience building web applications and REST APIs",
+      jobDescription:
+        "Looking for React developer with TypeScript Node.js MongoDB experience and strong problem solving skills",
+    });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("matchScore");
+    expect(res.body).toHaveProperty("matchedSkills");
+    expect(res.body).toHaveProperty("missingSkills");
+    expect(res.body).toHaveProperty("suggestionsCount");
+    expect(res.body.isLimited).toBe(true);
+  });
+
+  it("should reject short resume text", async () => {
+    const res = await request(app).post("/api/resume/public-analyse").send({
+      resumeText: "Too short",
+      jobDescription:
+        "Looking for React developer with TypeScript and Node.js experience",
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/50 characters/i);
+  });
+
+  it("should reject short job description", async () => {
+    const res = await request(app).post("/api/resume/public-analyse").send({
+      resumeText:
+        "Experienced React TypeScript Node.js developer with 3 years of experience building web applications",
+      jobDescription: "Too short",
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/50 characters/i);
+  });
+
+  it("should not return suggestions in limited result", async () => {
+    const res = await request(app).post("/api/resume/public-analyse").send({
+      resumeText:
+        "Experienced React TypeScript Node.js developer with 3 years of experience building web applications and REST APIs",
+      jobDescription:
+        "Looking for React developer with TypeScript Node.js MongoDB experience and strong problem solving skills",
+    });
+    expect(res.status).toBe(200);
+    expect(res.body).not.toHaveProperty("suggestions"); // suggestions hidden
+    expect(res.body).toHaveProperty("suggestionsCount"); // sirf count
+  });
+
+  it("should not require authentication", async () => {
+    // No Authorization header
+    const res = await request(app).post("/api/resume/public-analyse").send({
+      resumeText:
+        "Experienced React TypeScript Node.js developer with 3 years of experience building web applications and REST APIs",
+      jobDescription:
+        "Looking for React developer with TypeScript Node.js MongoDB experience and strong problem solving skills",
+    });
+    expect(res.status).not.toBe(401); // 401 nahi aana chahiye
+  });
+});

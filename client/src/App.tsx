@@ -14,6 +14,7 @@ import VerifyEmail from './pages/VerifyEmail'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import { Toaster } from 'react-hot-toast'
+import Landing from './pages/Landing'
 
 // Navbar sirf logged-in pages pe dikhao
 const AppLayout = () => {
@@ -32,6 +33,7 @@ const AppLayout = () => {
         }}
       />
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={
@@ -47,7 +49,7 @@ const AppLayout = () => {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   )

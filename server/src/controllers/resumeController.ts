@@ -274,3 +274,54 @@ export const getMyAnalyses = async (
     res.status(500).json({ message: "Error fetching analyses" });
   }
 };
+
+// POST /api/resume/public-analyse — no auth required, limited result
+export const publicAnalyse = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { resumeText, jobDescription } = req.body;
+
+    if (
+      !resumeText ||
+      typeof resumeText !== "string" ||
+      resumeText.trim().length < 50
+    ) {
+      res
+        .status(400)
+        .json({ message: "Resume text must be at least 50 characters" });
+      return;
+    }
+
+    if (
+      !jobDescription ||
+      typeof jobDescription !== "string" ||
+      jobDescription.trim().length < 50
+    ) {
+      res
+        .status(400)
+        .json({ message: "Job description must be at least 50 characters" });
+      return;
+    }
+
+    // Public rate limit — 3 requests per hour per IP
+    const analysisResult = await analyseResumeVsJD(
+      resumeText.trim().substring(0, 2000),
+      jobDescription.trim().substring(0, 1000),
+    );
+
+    // Limited result — suggestions aur interview questions hide karo
+    res.status(200).json({
+      matchScore: analysisResult.matchScore,
+      matchedSkills: analysisResult.matchedSkills,
+      missingSkills: analysisResult.missingSkills,
+      // Suggestions locked — sirf count batao
+      suggestionsCount: analysisResult.suggestions.length,
+      isLimited: true,
+    });
+  } catch (error) {
+    logger.error("Public analyse error:", error);
+    res.status(500).json({ message: "Analysis failed — try again" });
+  }
+};

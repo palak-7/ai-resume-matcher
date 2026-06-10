@@ -61,4 +61,15 @@ export const mongoSanitizer = (
   next();
 };
 
+export const publicAnalyseLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  skip: () => process.env.NODE_ENV === "test", // ← ye add karo
+  message: {
+    message: "Free analysis limit reached — sign up for unlimited access",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 export const hppProtection = hpp();

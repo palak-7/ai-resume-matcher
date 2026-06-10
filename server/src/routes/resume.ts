@@ -7,11 +7,13 @@ import {
   getMyResumes,
   getMyAnalyses,
   deleteResume,
+  publicAnalyse,
 } from "../controllers/resumeController";
 import {
   analyseValidation,
   validate,
 } from "../middleware/validationMiddleware";
+import { publicAnalyseLimiter } from "../middleware/securityMiddleware";
 
 const storage = multer.memoryStorage();
 
@@ -188,5 +190,40 @@ router.get("/analyses", protect, getMyAnalyses);
  *         description: Resume not found
  */
 router.delete("/:id", protect, deleteResume);
+
+/**
+ * @swagger
+ * /api/ai/public-analyse:
+ *   post:
+ *     summary: Analyse resume against a job description
+ *     description: Public endpoint to analyse a resume and compare it with a job description.
+ *     tags: [AI]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - resumeText
+ *               - jobDescription
+ *             properties:
+ *               resumeText:
+ *                 type: string
+ *                 example: Experienced Full Stack Developer with React and Node.js expertise...
+ *               jobDescription:
+ *                 type: string
+ *                 example: Looking for a React developer with TypeScript experience...
+ *     responses:
+ *       200:
+ *         description: Resume analysed successfully
+ *       400:
+ *         description: Invalid input
+ *       429:
+ *         description: Too many requests
+ *       500:
+ *         description: Server error
+ */
+router.post("/public-analyse", publicAnalyseLimiter, publicAnalyse);
 
 export default router;
