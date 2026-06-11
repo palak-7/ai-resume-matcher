@@ -1,33 +1,26 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
-import api from '../services/api'
+import { useDeleteAccount } from '../hooks/useAuth'
 
 const Settings = () => {
-    const { user, logout } = useAuth()
+    const { user } = useAuth()
     const navigate = useNavigate()
     const [showConfirm, setShowConfirm] = useState(false)
     const [confirmText, setConfirmText] = useState('')
-    const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-
+    const deleteMutation = useDeleteAccount()
     const handleDelete = async () => {
         if (confirmText !== 'DELETE') {
             setError('Please type DELETE to confirm')
             return
         }
-
-        setLoading(true)
         setError('')
-
         try {
-            await api.delete('/auth/delete-account')
-            logout()
+            await deleteMutation.mutateAsync()
             navigate('/')
         } catch (err: any) {
             setError(err.response?.data?.message || 'Failed to delete account')
-        } finally {
-            setLoading(false)
         }
     }
 
@@ -109,10 +102,10 @@ const Settings = () => {
                             <div className="flex gap-3">
                                 <button
                                     onClick={handleDelete}
-                                    disabled={loading || confirmText !== 'DELETE'}
+                                    disabled={deleteMutation.isPending || confirmText !== 'DELETE'}
                                     className="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
                                 >
-                                    {loading ? 'Deleting...' : 'Yes, delete everything'}
+                                    {deleteMutation.isPending ? 'Deleting...' : 'Yes, delete everything'}
                                 </button>
                                 <button
                                     onClick={() => { setShowConfirm(false); setConfirmText(''); setError('') }}

@@ -1,28 +1,41 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import api from '../services/api'
 import { useAuth } from '../context/useAuth'
+import { useVerifyEmail } from '../hooks/useAuth'
 
 const VerifyEmail = () => {
     const [searchParams] = useSearchParams()
-    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
+    const verifyEmailMutation = useVerifyEmail()
     const navigate = useNavigate()
     const { isAuthenticated, refreshUser } = useAuth()
 
     useEffect(() => {
         const token = searchParams.get('token')
-        if (!token) { setStatus('error'); return }
 
-        api.post('/auth/verify-email', { token })
-            .then(async () => {
+        if (!token) {
+            return
+        }
+
+        verifyEmailMutation.mutate(token, {
+            onSuccess: async () => {
                 if (isAuthenticated) {
                     await refreshUser()
                 }
-                setStatus('success')
-            })
-            .catch(() => setStatus('error'))
+            },
+        })
     }, [isAuthenticated, refreshUser, searchParams])
+    const token = searchParams.get('token')
 
+    const status =
+        !token
+            ? 'error'
+            : verifyEmailMutation.isPending
+                ? 'loading'
+                : verifyEmailMutation.isSuccess
+                    ? 'success'
+                    : verifyEmailMutation.isError
+                        ? 'error'
+                        : 'loading'
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
             <div className="bg-white dark:bg-gray-900 p-8 rounded-xl border border-gray-200 dark:border-gray-700 w-full max-w-md text-center">

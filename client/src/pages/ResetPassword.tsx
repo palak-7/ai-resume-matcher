@@ -1,33 +1,45 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import api from '../services/api'
+import { useResetPassword } from '../hooks/useAuth'
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams()
     const [password, setPassword] = useState('')
     const [confirm, setConfirm] = useState('')
-    const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [success, setSuccess] = useState(false)
     const navigate = useNavigate()
     const token = searchParams.get('token')
-
+    const resetPasswordMutation = useResetPassword()
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (password !== confirm) { setError('Passwords do not match'); return }
-        if (password.length < 6) { setError('Password must be at least 6 characters'); return }
+        e.preventDefault();
 
-        setLoading(true)
-        setError('')
-        try {
-            await api.post('/auth/reset-password', { token, newPassword: password })
-            setSuccess(true)
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Reset failed — link may have expired')
-        } finally {
-            setLoading(false)
+        if (password !== confirm) {
+            setError("Passwords do not match");
+            return;
         }
-    }
+
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters");
+            return;
+        }
+
+        setError("");
+
+        try {
+            await resetPasswordMutation.mutateAsync({
+                token: token || "",
+                newPassword: password,
+            });
+
+            setSuccess(true);
+        } catch (err: any) {
+            setError(
+                err.response?.data?.message ||
+                "Reset failed — link may have expired"
+            );
+        }
+    };
 
     if (success) {
         return (
@@ -88,10 +100,10 @@ const ResetPassword = () => {
                     </div>
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={resetPasswordMutation.isPending}
                         className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
                     >
-                        {loading ? 'Resetting...' : 'Reset Password'}
+                        {resetPasswordMutation.isPending ? 'Resetting...' : 'Reset Password'}
                     </button>
                 </form>
             </div>

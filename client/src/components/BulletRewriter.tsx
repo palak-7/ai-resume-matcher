@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import api from '../services/api'
+import { useRewriteBullet } from '../hooks/useAI'
 
 const BulletRewriter = () => {
+    const rewriteMutation = useRewriteBullet()
     const [bullet, setBullet] = useState('')
     const [jd, setJd] = useState('')
     const [rewrites, setRewrites] = useState<string[]>([])
@@ -14,11 +15,11 @@ const BulletRewriter = () => {
         setError('')
         setLoading(true)
         try {
-            const res = await api.post('/ai/rewrite-bullet', {
+            const rewrites = await rewriteMutation.mutateAsync({
                 bulletPoint: bullet,
                 jobDescription: jd,
             })
-            setRewrites(res.data.rewrites)
+            setRewrites(rewrites)
         } catch {
             setError('Failed to rewrite — try again')
         } finally {

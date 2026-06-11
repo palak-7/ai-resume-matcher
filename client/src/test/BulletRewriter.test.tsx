@@ -1,28 +1,31 @@
-import { render, screen } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
-import { AuthProvider } from '../context/AuthContext'
-import { ThemeProvider } from '../context/ThemeContext'
+import { screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+
 import BulletRewriter from '../components/BulletRewriter'
-import { describe, it, expect } from "vitest";
-const renderComponent = () => render(
-    <BrowserRouter>
-        <ThemeProvider>
-            <AuthProvider>
-                <BulletRewriter />
-            </AuthProvider>
-        </ThemeProvider>
-    </BrowserRouter>
-)
+import { renderWithProviders } from '../utils/test-utils'
 
 describe('BulletRewriter', () => {
     it('should render textarea and button', () => {
-        renderComponent()
-        expect(screen.getByRole('textbox', { name: /resume bullet point/i })).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: /rewrite with ai/i })).toBeInTheDocument()
+        renderWithProviders(<BulletRewriter />)
+
+        expect(
+            screen.getByRole('textbox', {
+                name: /resume bullet point/i,
+            })
+        ).toBeInTheDocument()
+
+        expect(
+            screen.getByRole('button', {
+                name: /rewrite with ai/i,
+            })
+        ).toBeInTheDocument()
     })
 
     it('should render optional JD input', () => {
-        renderComponent()
-        expect(screen.getByPlaceholderText(/optional/i)).toBeInTheDocument()
+        renderWithProviders(<BulletRewriter />)
+
+        expect(
+            screen.getByPlaceholderText(/optional/i)
+        ).toBeInTheDocument()
     })
 })

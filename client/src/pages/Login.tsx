@@ -1,27 +1,22 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/useAuth";
-import api from "../services/api";
 import { Eye, EyeOff } from "lucide-react";
+import { useLogin } from "../hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  const { login } = useAuth();
+  const loginMutation = useLogin()
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
     try {
-      const res = await api.post("/auth/login", { email, password });
-      login(res.data.accessToken, res.data.user);
+      await loginMutation.mutateAsync({ email, password })
       navigate("/dashboard");
     } catch (err: unknown) {
       if (
@@ -41,8 +36,6 @@ const Login = () => {
       } else {
         setError("Login failed");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -111,10 +104,10 @@ const Login = () => {
           </div>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loginMutation.isPending}
             className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loginMutation.isPending ? "Signing in..." : "Sign in"}
           </button>
         </form>
         <p className="text-center text-sm text-gray-500 mt-4">

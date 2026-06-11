@@ -1,44 +1,25 @@
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../services/api'
 import { DashboardSkeleton } from '../components/Skeleton'
 import RepoBulletGenerator from '../components/RepoBulletGenerator'
+import { useAnalyses, useResumes } from '../hooks/useResumes'
 
-interface Resume {
-  _id: string
-  originalName: string
-  createdAt: string
-}
+// interface Resume {
+//   _id: string
+//   originalName: string
+//   createdAt: string
+// }
 
-interface Analysis {
-  _id: string
-  matchScore: number
-  createdAt: string
-}
+// interface Analysis {
+//   _id: string
+//   matchScore: number
+//   createdAt: string
+// }
 
 const Dashboard = () => {
   const navigate = useNavigate()
-  const [resumes, setResumes] = useState<Resume[]>([])
-  const [analyses, setAnalyses] = useState<Analysis[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [resumeRes, analysisRes] = await Promise.all([
-          api.get('/resume/my-resumes'),
-          api.get('/resume/analyses'),
-        ])
-        setResumes(resumeRes.data.resumes)
-        setAnalyses(analysisRes.data.analyses)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [])
+  const { data: resumes = [], isLoading: resumesLoading } = useResumes()
+  const { data: analyses = [], isLoading: analysesLoading } = useAnalyses()
+  const loading = resumesLoading || analysesLoading
 
   const scoreColor = (score: number) =>
     score >= 75 ? 'text-green-600' :
@@ -89,7 +70,7 @@ const Dashboard = () => {
                   </div>
                 ) : (
                   <ul className="space-y-3">
-                    {analyses.slice(0, 5).map((a) => (
+                    {analyses.slice(0, 5).map((a: any) => (
                       <li key={a._id} className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                         <span className="text-sm text-gray-600 dark:text-gray-300">
                           {new Date(a.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
@@ -112,7 +93,7 @@ const Dashboard = () => {
                   </div>
                 ) : (
                   <ul className="space-y-3">
-                    {resumes.slice(0, 5).map((r) => (
+                    {resumes.slice(0, 5).map((r: any) => (
                       <li key={r._id} className="flex items-center gap-3 py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                         <span className="text-lg">📄</span>
                         <div>

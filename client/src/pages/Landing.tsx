@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../services/api'
 import ScoreCard from '../components/ScoreCard'
+import { usePublicAnalyse } from '../hooks/useAI'
 
 interface PublicResult {
     matchScore: number
@@ -12,10 +12,10 @@ interface PublicResult {
 }
 
 const Landing = () => {
+    const publicMutation = usePublicAnalyse()
     const navigate = useNavigate()
     const [resumeText, setResumeText] = useState('')
     const [jobDescription, setJobDescription] = useState('')
-    const [loading, setLoading] = useState(false)
     const [result, setResult] = useState<PublicResult | null>(null)
     const [error, setError] = useState('')
 
@@ -23,14 +23,11 @@ const Landing = () => {
         if (resumeText.trim().length < 50) { setError('Resume text too short — min 50 characters'); return }
         if (jobDescription.trim().length < 50) { setError('Job description too short — min 50 characters'); return }
         setError('')
-        setLoading(true)
         try {
-            const res = await api.post('/resume/public-analyse', { resumeText, jobDescription })
-            setResult(res.data)
+            const data = await publicMutation.mutateAsync({ resumeText, jobDescription })
+            setResult(data)
         } catch (err: any) {
             setError(err.response?.data?.message || 'Analysis failed — try again')
-        } finally {
-            setLoading(false)
         }
     }
 
@@ -131,10 +128,10 @@ const Landing = () => {
 
                             <button
                                 onClick={handleAnalyse}
-                                disabled={loading}
+                                disabled={publicMutation.isPending}
                                 className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                             >
-                                {loading ? (
+                                {publicMutation.isPending ? (
                                     <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Analysing...</>
                                 ) : '✦ Analyse for free'}
                             </button>

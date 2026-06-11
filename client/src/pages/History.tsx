@@ -1,21 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../services/api'
-
-interface MissingSkill {
-    skill: string
-    severity: 'high' | 'medium' | 'low'
-}
-
-interface Analysis {
-    _id: string
-    matchScore: number
-    matchedSkills: string[]
-    missingSkills: MissingSkill[]
-    suggestions: string[]
-    jobDescription: string
-    createdAt: string
-}
+import { useAnalyses } from '../hooks/useResumes'
 
 const severityColor = {
     high: 'bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300',
@@ -24,17 +9,13 @@ const severityColor = {
 }
 
 const History = () => {
-    const [analyses, setAnalyses] = useState<Analysis[]>([])
-    const [loading, setLoading] = useState(true)
     const [expanded, setExpanded] = useState<string | null>(null)
     const navigate = useNavigate()
+    const {
+        data: analyses = [],
+        isLoading,
+    } = useAnalyses()
 
-    useEffect(() => {
-        api.get('/resume/analyses')
-            .then(res => setAnalyses(res.data.analyses))
-            .catch(console.error)
-            .finally(() => setLoading(false))
-    }, [])
 
     const scoreColor = (score: number) =>
         score >= 75 ? 'text-green-600' :
@@ -60,7 +41,7 @@ const History = () => {
                     </button>
                 </div>
 
-                {loading ? (
+                {isLoading ? (
                     <div className="space-y-3">
                         {[0, 1, 2].map(i => (
                             <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-5 animate-pulse">

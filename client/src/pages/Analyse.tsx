@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PDFUpload from '../components/PDFUpload'
 import ScoreCard from '../components/ScoreCard'
-import api from '../services/api'
 import BulletRewriter from '../components/BulletRewriter'
 import InterviewQuestions from '../components/InterviewQuestions'
 import CoverLetter from '../components/CoverLetter'
+import { useAnalyseResume } from '../hooks/useResumes'
 
 interface Resume {
   id: string
@@ -22,6 +22,7 @@ interface AnalysisResult {
 }
 
 const Analyse = () => {
+  const analyseMutation = useAnalyseResume()
   const [resume, setResume] = useState<Resume | null>(null)
   const [jobDescription, setJobDescription] = useState('')
   const [analysing, setAnalysing] = useState(false)
@@ -40,11 +41,11 @@ const Analyse = () => {
     setAnalysing(true)
 
     try {
-      const res = await api.post('/resume/analyse', {
+      const res = await analyseMutation.mutateAsync({
         resumeId: resume.id,
         jobDescription: jobDescription.trim(),
       })
-      setResult(res.data.analysis)
+      setResult(res)
     } catch (err: unknown) {
       if (
         typeof err === "object" &&

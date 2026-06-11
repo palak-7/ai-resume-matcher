@@ -1,22 +1,19 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import api from '../services/api'
+import { useForgotPassword } from '../hooks/useAuth'
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('')
     const [sent, setSent] = useState(false)
-    const [loading, setLoading] = useState(false)
-
+    const forgotPasswordMutation = useForgotPassword()
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        setLoading(true)
+
         try {
-            await api.post('/auth/forgot-password', { email })
+            await forgotPasswordMutation.mutateAsync(email)
             setSent(true)
         } catch {
-            setSent(true) // Always show success — security best practice
-        } finally {
-            setLoading(false)
+            setSent(true)
         }
     }
 
@@ -49,10 +46,10 @@ const ForgotPassword = () => {
                         </div>
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={forgotPasswordMutation.isPending}
                             className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
                         >
-                            {loading ? 'Sending...' : 'Send Reset Link'}
+                            {forgotPasswordMutation.isPending ? 'Sending...' : 'Send Reset Link'}
                         </button>
                     </form>
                 )}
