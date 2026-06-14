@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Settings2, CheckCircle, AlertCircle, Trash2, ShieldAlert } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { useDeleteAccount } from '../hooks/useAuth'
 
@@ -10,6 +11,7 @@ const Settings = () => {
     const [confirmText, setConfirmText] = useState('')
     const [error, setError] = useState('')
     const deleteMutation = useDeleteAccount()
+
     const handleDelete = async () => {
         if (confirmText !== 'DELETE') {
             setError('Please type DELETE to confirm')
@@ -26,90 +28,160 @@ const Settings = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-            <div className="max-w-2xl mx-auto px-6 py-10">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
-                    Account Settings
-                </h2>
 
-                {/* Profile info */}
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-6">
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Profile</h3>
-                    <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Name</span>
-                            <span className="text-gray-900 dark:text-white font-medium">{user?.name}</span>
+            {/* ── Hero banner — same dark navy gradient as Dashboard & History */}
+            <div
+                className="relative overflow-hidden px-6 py-10"
+                style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)' }}
+            >
+                <div
+                    className="absolute inset-0 opacity-10"
+                    style={{
+                        backgroundImage:
+                            'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+                        backgroundSize: '40px 40px',
+                    }}
+                />
+                <div
+                    className="absolute top-0 right-1/4 w-72 h-72 rounded-full opacity-20 blur-3xl pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, #3b82f6, transparent)' }}
+                />
+
+                <div className="relative z-10 max-w-2xl mx-auto">
+                    <div className="flex items-center gap-2 mb-2">
+                        <Settings2 size={15} className="text-blue-400" />
+                        <span className="text-slate-400 text-sm">Manage your account</span>
+                    </div>
+                    <h1 className="text-3xl font-bold text-white">Account Settings</h1>
+                </div>
+            </div>
+
+            {/* ── Content */}
+            <div className="max-w-2xl mx-auto px-6 py-10 space-y-6">
+
+                {/* ── Profile card */}
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6">
+                    <div className="flex items-center gap-2 mb-5">
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0">
+                            {user?.name?.charAt(0).toUpperCase()}
                         </div>
-                        <div className="flex justify-between text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Email</span>
-                            <span className="text-gray-900 dark:text-white font-medium">{user?.email}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Verified</span>
-                            <span className={`font-medium text-sm ${user?.isVerified ? 'text-green-600' : 'text-amber-600'}`}>
-                                {user?.isVerified ? '✓ Verified' : '⚠ Not verified'}
-                            </span>
+                        <h2 className="font-semibold text-gray-900 dark:text-white text-sm">Profile</h2>
+                    </div>
+
+                    <div className="space-y-1">
+                        {[
+                            { label: 'Name', value: user?.name },
+                            { label: 'Email', value: user?.email },
+                        ].map(({ label, value }) => (
+                            <div
+                                key={label}
+                                className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            >
+                                <span className="text-sm text-gray-400 dark:text-gray-500">{label}</span>
+                                <span className="text-sm font-medium text-gray-900 dark:text-white">{value}</span>
+                            </div>
+                        ))}
+
+                        {/* Verified row */}
+                        <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                            <span className="text-sm text-gray-400 dark:text-gray-500">Verified</span>
+                            {user?.isVerified ? (
+                                <span className="flex items-center gap-1.5 text-sm font-medium text-green-600 dark:text-green-400">
+                                    <CheckCircle size={14} />
+                                    Verified
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-1.5 text-sm font-medium text-amber-500 dark:text-amber-400">
+                                    <AlertCircle size={14} />
+                                    Not verified
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>
 
-                {/* Danger zone */}
-                <div className="bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-xl p-6">
-                    <h3 className="font-semibold text-red-600 dark:text-red-400 mb-2">
-                        Delete Account
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                {/* ── Danger zone */}
+                <div className="bg-white dark:bg-gray-900 border border-red-200 dark:border-red-900 rounded-2xl p-6">
+                    <div className="flex items-center gap-2 mb-1">
+                        <ShieldAlert size={15} className="text-red-500" />
+                        <h2 className="font-semibold text-red-600 dark:text-red-400 text-sm">Danger Zone</h2>
+                    </div>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mb-5">
                         Permanently delete your account and all data — resumes, analyses, everything. This cannot be undone.
                     </p>
 
                     {!showConfirm ? (
                         <button
                             onClick={() => setShowConfirm(true)}
-                            className="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900 transition-colors"
+                            className="flex items-center gap-1.5 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-red-100 dark:hover:bg-red-950 transition-colors"
                         >
+                            <Trash2 size={14} />
                             Delete my account
                         </button>
                     ) : (
-                        <div className="space-y-3">
-                            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                                <p className="text-sm text-red-700 dark:text-red-400 font-medium mb-1">
+                        <div className="space-y-4">
+
+                            {/* Warning list */}
+                            <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                                <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">
                                     This will permanently delete:
                                 </p>
-                                <ul className="text-xs text-red-600 dark:text-red-400 space-y-1 ml-2">
-                                    <li>• Your account and profile</li>
-                                    <li>• All uploaded resumes</li>
-                                    <li>• All analysis history</li>
-                                    <li>• All saved data</li>
+                                <ul className="space-y-1.5">
+                                    {[
+                                        'Your account and profile',
+                                        'All uploaded resumes',
+                                        'All analysis history',
+                                        'All saved data',
+                                    ].map((item) => (
+                                        <li key={item} className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+                                            <span className="w-1 h-1 bg-red-400 rounded-full shrink-0" />
+                                            {item}
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
 
+                            {/* Confirm input */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Type <span className="font-bold text-red-600">DELETE</span> to confirm
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                    Type <span className="font-bold text-red-600 dark:text-red-400">DELETE</span> to confirm
                                 </label>
                                 <input
                                     type="text"
                                     value={confirmText}
                                     onChange={(e) => setConfirmText(e.target.value)}
                                     placeholder="DELETE"
-                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:text-white"
+                                    className="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-800 transition-all"
                                 />
                             </div>
 
+                            {/* Inline error */}
                             {error && (
-                                <p className="text-red-600 text-xs">{error}</p>
+                                <div className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 px-3 py-2.5 rounded-xl">
+                                    <AlertCircle size={13} />
+                                    {error}
+                                </div>
                             )}
 
+                            {/* Action buttons */}
                             <div className="flex gap-3">
                                 <button
                                     onClick={handleDelete}
                                     disabled={deleteMutation.isPending || confirmText !== 'DELETE'}
-                                    className="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
+                                    className="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center gap-2"
                                 >
-                                    {deleteMutation.isPending ? 'Deleting...' : 'Yes, delete everything'}
+                                    {deleteMutation.isPending ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Deleting...
+                                        </>
+                                    ) : (
+                                        'Yes, delete everything'
+                                    )}
                                 </button>
                                 <button
                                     onClick={() => { setShowConfirm(false); setConfirmText(''); setError('') }}
-                                    className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                                    className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
                                 >
                                     Cancel
                                 </button>

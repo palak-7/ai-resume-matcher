@@ -17,7 +17,9 @@ describe("Login page", () => {
   it("should show link to register page", () => {
     renderWithProviders(<Login />)
 
-    expect(screen.getByText(/sign up/i)).toBeInTheDocument()
+    expect(
+      screen.getByRole("link", { name: /create a free account/i })
+    ).toBeInTheDocument()
   })
 
   it("should disable button while loading", () => {
