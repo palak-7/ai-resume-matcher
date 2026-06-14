@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
-import api from '../services/api'
+import { useState } from 'react'
 import { useAuth } from '../context/useAuth'
 import { getGitHubToken } from '../utils/githubToken'
+import { useGenerateRepoBullets, useGithubRepos } from '../hooks/useAI'
 
 interface Repo {
     id: number
@@ -14,58 +14,33 @@ interface Repo {
 
 const RepoBulletGenerator = () => {
     const { user } = useAuth()
-    const [repos, setRepos] = useState<Repo[]>([])
     const [selectedRepo, setSelectedRepo] = useState<Repo | null>(null)
     const [bullets, setBullets] = useState<string[]>([])
-    const [loading, setLoading] = useState(false)
-    const [fetching, setFetching] = useState(false)
     const [copied, setCopied] = useState<number | null>(null)
-
+    const generateBulletsMutation = useGenerateRepoBullets()
     const githubToken = getGitHubToken(user)
-    const fetchRepos = async () => {
-        setFetching(true)
-
-        try {
-            const res = await api.get('/github/repos', {
-                headers: {
-                    'x-github-token': githubToken || '',
-                },
-            })
-
-            setRepos(res.data.repos || [])
-        } catch (error) {
-            console.error('Failed to fetch repos', error)
-        } finally {
-            setFetching(false)
-        }
-    }
-
-    useEffect(() => {
-        if (githubToken) {
-            fetchRepos()
-        }
-    }, [githubToken])
+    const {
+        data: repos = [],
+        isLoading: fetching,
+    } = useGithubRepos(githubToken)
 
 
     const handleGenerate = async () => {
         if (!selectedRepo) return
 
-        setLoading(true)
         setBullets([])
 
         try {
-            const res = await api.post('/github/generate-bullets', {
+            const bullets = await generateBulletsMutation.mutateAsync({
                 repoName: selectedRepo.name,
                 repoDescription: selectedRepo.description,
                 language: selectedRepo.language,
                 githubToken,
             })
 
-            setBullets(res.data.bullets || [])
+            setBullets(bullets)
         } catch (error) {
             console.error('Failed to generate bullets', error)
-        } finally {
-            setLoading(false)
         }
     }
 
@@ -143,10 +118,10 @@ const RepoBulletGenerator = () => {
                         <button
                             type="button"
                             onClick={handleGenerate}
-                            disabled={loading}
+                            disabled={generateBulletsMutation.isPending}
                             className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-950 py-2 rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity flex items-center justify-center gap-2"
                         >
-                            {loading ? (
+                            {generateBulletsMutation.isPending ? (
                                 <>
                                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                     Generating...

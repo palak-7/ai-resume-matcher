@@ -1,5 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../services/api";
+import type { Repo } from "../types/ai";
 
 // Bullet rewrite mutation
 export const useRewriteBullet = () => {
@@ -76,6 +77,47 @@ export const usePublicAnalyse = () => {
         jobDescription,
       });
       return res.data;
+    },
+  });
+};
+
+export const useGithubRepos = (githubToken: string | null) => {
+  return useQuery({
+    queryKey: ["github-repos"],
+    queryFn: async () => {
+      const res = await api.get("/github/repos", {
+        headers: {
+          "x-github-token": githubToken || "",
+        },
+      });
+
+      return res.data.repos as Repo[];
+    },
+    enabled: !!githubToken,
+  });
+};
+
+export const useGenerateRepoBullets = () => {
+  return useMutation({
+    mutationFn: async ({
+      repoName,
+      repoDescription,
+      language,
+      githubToken,
+    }: {
+      repoName: string;
+      repoDescription: string;
+      language?: string;
+      githubToken: string | null;
+    }) => {
+      const res = await api.post("/github/generate-bullets", {
+        repoName,
+        repoDescription,
+        language,
+        githubToken,
+      });
+
+      return res.data.bullets as string[];
     },
   });
 };
