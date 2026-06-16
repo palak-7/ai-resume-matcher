@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "http://localhost:5001/api",
   withCredentials: true, // ← cookies send karo
 });
 
@@ -53,7 +53,7 @@ api.interceptors.response.use(
       try {
         // Naya access token lo
         const res = await axios.post(
-          "http://localhost:5000/api/auth/refresh",
+          "http://localhost:5001/api/auth/refresh",
           {},
           { withCredentials: true },
         );

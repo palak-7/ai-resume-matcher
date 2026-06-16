@@ -30,14 +30,20 @@ const Navbar = () => {
                 {/* Logo */}
                 <div
                     onClick={() => navigate('/dashboard')}
-                    className="flex items-center gap-2 cursor-pointer group"
+                    className="cursor-pointer"
                 >
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-700 transition-colors">
-                        <Sparkles size={15} className="text-white" />
-                    </div>
-                    <span className="text-gray-900 dark:text-white font-semibold text-base tracking-tight">
-                        AI Resume Matcher
-                    </span>
+                    {/* Light mode */}
+                    <img
+                        src="/logo-light.svg"
+                        alt="AI Resume Matcher"
+                        className="h-12 w-auto block dark:hidden"
+                    />
+                    {/* Dark mode */}
+                    <img
+                        src="/logo-dark.svg"
+                        alt="AI Resume Matcher"
+                        className="h-12 w-auto hidden dark:block"
+                    />
                 </div>
 
                 {/* Right side */}

@@ -56,8 +56,19 @@ if (process.env.NODE_ENV !== "test") {
 app.use(morganMiddleware);
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-    credentials: true, // ← ye add karo — withCredentials ke liye zaroori hai
+    origin: (origin, callback) => {
+      const allowed = (process.env.CLIENT_URL || "http://localhost:5173")
+        .split(",")
+        .map((o) => o.trim());
+
+      // No origin (mobile apps, curl, etc.) ya allowed list mein hai
+      if (!origin || allowed.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked: ${origin}`));
+      }
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "x-github-token"],
   }),
@@ -120,7 +131,7 @@ app.use(
     customSiteTitle: "AI Resume Matcher API Docs",
   }),
 );
-logger.info("Swagger docs available at http://localhost:5000/api/docs");
+logger.info("Swagger docs available at http://localhost:5001/api/docs");
 
 // Global error handler update karo:
 app.use(

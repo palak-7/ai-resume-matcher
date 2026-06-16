@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" width="200" height="48" role="img">
+  <title>AI Resume Matcher logo — light mode</title>
+  <desc>Blue rounded square with sparkle icon and dark text</desc>
+
+  <!-- Icon box -->
+  <rect x="0" y="4" width="40" height="40" rx="10" fill="#2563eb"/>
+
+  <!-- Sparkle icon (centered in box) -->
+  <g transform="translate(20, 24)" fill="white">
+    <polygon points="0,-9 2,-2 9,0 2,2 0,9 -2,2 -9,0 -2,-2" opacity="0.95"/>
+    <polygon points="0,-4.5 1,-1 4.5,0 1,1 0,4.5 -1,1 -4.5,0 -1,-1" transform="rotate(45)" opacity="0.5"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="52" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#0f172a" letter-spacing="0.3">AI Resume</text>
+  <text x="52" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#2563eb" letter-spacing="0.3">Matcher</text>
+</svg>

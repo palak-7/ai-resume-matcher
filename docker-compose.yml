@@ -8,7 +8,7 @@ services:
       target: production
     container_name: ai-resume-server
     ports:
-      - "5000:5000"
+      - "5001:5000"
     environment:
       - NODE_ENV=production
       - PORT=5000
@@ -27,6 +27,8 @@ services:
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
       - GITHUB_REDIRECT_URI=http://localhost/api/github/callback
+      - EMAIL_USER=palaksehgal0707@gmail.com
+      - EMAIL_APP_PASSWORD=dpwl avhn coov elnu
     restart: unless-stopped
     healthcheck:
       test:
