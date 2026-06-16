@@ -73,7 +73,7 @@ const RepoBulletGenerator = () => {
                         </p>
                     </div>
                     <a
-                        href={`${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/github/auth`}
+                        href={`${import.meta.env.VITE_API_URL}/api/github/auth`}
                         className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 shadow-sm whitespace-nowrap"
                     >
                         <GitBranch size={14} />

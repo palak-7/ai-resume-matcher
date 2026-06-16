@@ -131,7 +131,7 @@ app.use(
     customSiteTitle: "AI Resume Matcher API Docs",
   }),
 );
-logger.info("Swagger docs available at http://localhost:5001/api/docs");
+logger.info(`Swagger docs available at http://localhost:5001/api/docs`);
 
 // Global error handler update karo:
 app.use(
