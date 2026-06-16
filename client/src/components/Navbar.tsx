@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sparkles, Sun, Moon, ChevronDown, Settings, LayoutDashboard, LogOut, History } from 'lucide-react'
+import { Sun, Moon, ChevronDown, Settings, LayoutDashboard, LogOut, History } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { useTheme } from '../context/useTheme'
 
