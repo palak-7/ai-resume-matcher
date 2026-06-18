@@ -1,14 +1,20 @@
 import nodemailer from "nodemailer";
 import logger from "./logger";
-import config from "./config";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
+const transporter = nodemailer.createTransport<SMTPTransport.SentMessageInfo>({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD,
   },
-});
+  family: 4,
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
+} as SMTPTransport.Options);
 
 const FROM_EMAIL = process.env.EMAIL_USER!;
 

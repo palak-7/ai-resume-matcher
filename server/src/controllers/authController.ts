@@ -71,7 +71,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (process.env.NODE_ENV !== "test") {
-      await sendVerificationEmail(email, name, verificationToken);
+      sendVerificationEmail(email, name, verificationToken).catch((err) => {
+        logger.error("Verification email failed (non-blocking):", err);
+      });
     }
 
     const accessToken = generateAccessToken(user._id.toString());
