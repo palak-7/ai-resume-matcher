@@ -2,18 +2,15 @@ import nodemailer from "nodemailer";
 import logger from "./logger";
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp-relay.brevo.com",
+  port: 587,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD,
+    user: process.env.BREVO_SMTP_USER,
+    pass: process.env.BREVO_SMTP_KEY,
   },
-  pool: true,
-  maxConnections: 1,
-  family: 4,
-  connectionTimeout: 15000,
-} as any);
+});
 
-const FROM_EMAIL = process.env.EMAIL_USER!;
+const FROM_EMAIL = process.env.BREVO_SMTP_USER!;
 
 export const sendVerificationEmail = async (
   email: string,
