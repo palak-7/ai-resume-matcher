@@ -3,7 +3,8 @@ import logger from "./logger";
 
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
-  port: 587,
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_KEY,
@@ -18,8 +19,8 @@ export const sendVerificationEmail = async (
   token: string,
 ): Promise<void> => {
   const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-  console.log("EMAIL_USER:", process.env.EMAIL_USER);
-  console.log("EMAIL_APP_PASSWORD exists:", !!process.env.EMAIL_APP_PASSWORD);
+  console.log("EMAIL_USER:", process.env.BREVO_SMTP_USER);
+  console.log("EMAIL_APP_PASSWORD exists:", !!process.env.BREVO_SMTP_KEY);
   try {
     await transporter.sendMail({
       from: `"AI Resume Matcher" <${FROM_EMAIL}>`,
