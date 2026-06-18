@@ -1,15 +1,29 @@
-import nodemailer from "nodemailer";
 import logger from "./logger";
 
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_KEY,
-  },
-});
+export const sendBrevoEmail = async (
+  to: string,
+  subject: string,
+  html: string,
+) => {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": process.env.BREVO_API_KEY!,
+    },
+    body: JSON.stringify({
+      sender: { name: "AI Resume Matcher", email: process.env.BREVO_SMTP_USER },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Brevo API error: ${err}`);
+  }
+};
 
 const FROM_EMAIL = process.env.BREVO_SMTP_USER!;
 
@@ -22,11 +36,10 @@ export const sendVerificationEmail = async (
   console.log("EMAIL_USER:", process.env.BREVO_SMTP_USER);
   console.log("EMAIL_APP_PASSWORD exists:", !!process.env.BREVO_SMTP_KEY);
   try {
-    await transporter.sendMail({
-      from: `"AI Resume Matcher" <${FROM_EMAIL}>`,
-      to: email,
-      subject: "Verify your email — AI Resume Matcher",
-      html: `
+    await sendBrevoEmail(
+      email,
+      "Verify your email — AI Resume Matcher",
+      `
         <!DOCTYPE html>
         <html>
           <head>
@@ -52,7 +65,7 @@ export const sendVerificationEmail = async (
           </body>
         </html>
       `,
-    });
+    );
     logger.info(`Verification email sent to: ${email}`);
   } catch (error) {
     logger.error(`Failed to send verification email to ${email}:`, error);
@@ -68,11 +81,10 @@ export const sendPasswordResetEmail = async (
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
   try {
-    await transporter.sendMail({
-      from: `"AI Resume Matcher" <${FROM_EMAIL}>`,
-      to: email,
-      subject: "Reset your password — AI Resume Matcher",
-      html: `
+    await sendBrevoEmail(
+      email,
+      "Reset your password — AI Resume Matcher",
+      `
         <!DOCTYPE html>
         <html>
           <head>
@@ -97,7 +109,7 @@ export const sendPasswordResetEmail = async (
           </body>
         </html>
       `,
-    });
+    );
     logger.info(`Password reset email sent to: ${email}`);
   } catch (error) {
     logger.error(`Failed to send password reset email to ${email}:`, error);
