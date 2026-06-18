@@ -2,18 +2,15 @@ import nodemailer from "nodemailer";
 import logger from "./logger";
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  requireTLS: true,
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD,
   },
+  pool: true,
+  maxConnections: 1,
   family: 4,
   connectionTimeout: 15000,
-  greetingTimeout: 15000,
-  socketTimeout: 15000,
 } as any);
 
 const FROM_EMAIL = process.env.EMAIL_USER!;
