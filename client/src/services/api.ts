@@ -1,7 +1,8 @@
 import axios from "axios";
+import { apiUrl } from "../config/api";
 
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+  baseURL: apiUrl,
   withCredentials: true, // ← cookies send karo
 });
 
@@ -53,7 +54,7 @@ api.interceptors.response.use(
       try {
         // Naya access token lo
         const res = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
+          `${apiUrl}/auth/refresh`,
           {},
           { withCredentials: true },
         );

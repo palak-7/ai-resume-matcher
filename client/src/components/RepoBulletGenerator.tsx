@@ -3,6 +3,7 @@ import { GitBranch, Sparkles, Copy, Check, ChevronDown } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { getGitHubToken } from '../utils/githubToken'
 import { useGenerateRepoBullets, useGithubRepos } from '../hooks/useAI'
+import { apiUrl } from '../config/api'
 
 interface Repo {
     id: number
@@ -73,7 +74,7 @@ const RepoBulletGenerator = () => {
                         </p>
                     </div>
                     <a
-                        href={`${import.meta.env.VITE_API_URL}/api/github/auth`}
+                        href={`${apiUrl}/github/auth`}
                         className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 shadow-sm whitespace-nowrap"
                     >
                         <GitBranch size={14} />

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { Sun, Moon, ChevronDown, Settings, LayoutDashboard, LogOut, History } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 import { useTheme } from '../context/useTheme'
+import toast from 'react-hot-toast'
+import { useResendVerification } from '../hooks/useAuth'
 
 const Navbar = () => {
     const { user, logout } = useAuth()
@@ -10,7 +12,18 @@ const Navbar = () => {
     const navigate = useNavigate()
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
-
+    const resendVerificationMutation = useResendVerification()
+    const handleResendVerification = async () => {
+        try {
+            await resendVerificationMutation.mutateAsync();
+            toast.success("Verification email sent successfully");
+        } catch (error: any) {
+            toast.error(
+                error.response?.data?.message ||
+                "Failed to send verification email"
+            );
+        }
+    };
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -24,112 +37,131 @@ const Navbar = () => {
     const initial = user?.name?.charAt(0).toUpperCase() ?? '?'
 
     return (
-        <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-gray-950/80 border-b border-gray-100 dark:border-gray-800 px-6 py-3.5">
-            <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div>
+            <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-gray-950/80 border-b border-gray-100 dark:border-gray-800 px-6 py-3.5">
+                <div className="max-w-6xl mx-auto flex items-center justify-between">
 
-                {/* Logo */}
-                <div
-                    onClick={() => navigate('/dashboard')}
-                    className="cursor-pointer"
-                >
-                    {/* Light mode */}
-                    <img
-                        src="/logo-light.svg"
-                        alt="AI Resume Matcher"
-                        className="h-12 w-auto block dark:hidden"
-                    />
-                    {/* Dark mode */}
-                    <img
-                        src="/logo-dark.svg"
-                        alt="AI Resume Matcher"
-                        className="h-12 w-auto hidden dark:block"
-                    />
-                </div>
-
-                {/* Right side */}
-                <div className="flex items-center gap-2">
-
-                    {/* History */}
-                    <button
-                        onClick={() => navigate('/history')}
-                        className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
+                    {/* Logo */}
+                    <div
+                        onClick={() => navigate('/dashboard')}
+                        className="cursor-pointer"
                     >
-                        <History size={15} />
-                        <span className="hidden sm:inline">History</span>
-                    </button>
+                        {/* Light mode */}
+                        <img
+                            src="/logo-light.svg"
+                            alt="AI Resume Matcher"
+                            className="h-12 w-auto block dark:hidden"
+                        />
+                        {/* Dark mode */}
+                        <img
+                            src="/logo-dark.svg"
+                            alt="AI Resume Matcher"
+                            className="h-12 w-auto hidden dark:block"
+                        />
+                    </div>
 
-                    {/* Theme toggle */}
-                    <button
-                        onClick={toggleTheme}
-                        className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
-                        aria-label="Toggle theme"
-                    >
-                        {isDark ? <Sun size={16} /> : <Moon size={16} />}
-                    </button>
+                    {/* Right side */}
+                    <div className="flex items-center gap-2">
 
-                    {/* User dropdown */}
-                    <div className="relative" ref={dropdownRef}>
+                        {/* History */}
                         <button
-                            onClick={() => setDropdownOpen(!dropdownOpen)}
-                            className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            onClick={() => navigate('/history')}
+                            className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
                         >
-                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0">
-                                {initial}
-                            </div>
-                            <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-200">
-                                {user?.name}
-                            </span>
-                            <ChevronDown
-                                size={14}
-                                className={`text-gray-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
-                            />
+                            <History size={15} />
+                            <span className="hidden sm:inline">History</span>
                         </button>
 
-                        {/* Dropdown */}
-                        {dropdownOpen && (
-                            <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg py-1.5 z-50">
+                        {/* Theme toggle */}
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                            aria-label="Toggle theme"
+                        >
+                            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+                        </button>
 
-                                {/* User info */}
-                                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 mb-1">
-                                    <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                                        {user?.name}
-                                    </p>
-                                    <p className="text-xs text-gray-400 truncate mt-0.5">
-                                        {user?.email}
-                                    </p>
+                        {/* User dropdown */}
+                        <div className="relative" ref={dropdownRef}>
+                            <button
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            >
+                                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                                    {initial}
                                 </div>
+                                <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-200">
+                                    {user?.name}
+                                </span>
+                                <ChevronDown
+                                    size={14}
+                                    className={`text-gray-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
+                                />
+                            </button>
 
-                                <button
-                                    onClick={() => { navigate('/dashboard'); setDropdownOpen(false) }}
-                                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2.5 transition-colors"
-                                >
-                                    <LayoutDashboard size={15} className="text-gray-400" />
-                                    Dashboard
-                                </button>
+                            {/* Dropdown */}
+                            {dropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg py-1.5 z-50">
 
-                                <button
-                                    onClick={() => { navigate('/settings'); setDropdownOpen(false) }}
-                                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2.5 transition-colors"
-                                >
-                                    <Settings size={15} className="text-gray-400" />
-                                    Settings
-                                </button>
+                                    {/* User info */}
+                                    <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 mb-1">
+                                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                            {user?.name}
+                                        </p>
+                                        <p className="text-xs text-gray-400 truncate mt-0.5">
+                                            {user?.email}
+                                        </p>
+                                    </div>
 
-                                <div className="border-t border-gray-100 dark:border-gray-800 mt-1 pt-1">
                                     <button
-                                        onClick={() => { logout(); setDropdownOpen(false) }}
-                                        className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 flex items-center gap-2.5 transition-colors"
+                                        onClick={() => { navigate('/dashboard'); setDropdownOpen(false) }}
+                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2.5 transition-colors"
                                     >
-                                        <LogOut size={15} className="text-red-400" />
-                                        Sign out
+                                        <LayoutDashboard size={15} className="text-gray-400" />
+                                        Dashboard
                                     </button>
+
+                                    <button
+                                        onClick={() => { navigate('/settings'); setDropdownOpen(false) }}
+                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2.5 transition-colors"
+                                    >
+                                        <Settings size={15} className="text-gray-400" />
+                                        Settings
+                                    </button>
+
+                                    <div className="border-t border-gray-100 dark:border-gray-800 mt-1 pt-1">
+                                        <button
+                                            onClick={() => { logout(); setDropdownOpen(false) }}
+                                            className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 flex items-center gap-2.5 transition-colors"
+                                        >
+                                            <LogOut size={15} className="text-red-400" />
+                                            Sign out
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+            {!user?.isVerified &&
+                <div className="bg-amber-50 dark:bg-amber-950 border-b border-amber-200 dark:border-amber-800 px-6 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <span className="text-amber-600">⚠️</span>
+                        <p className="text-sm text-amber-700 dark:text-amber-400">
+                            Please verify your email to unlock all features.
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={handleResendVerification}
+                        disabled={resendVerificationMutation.isPending}
+                        className="px-3 py-1.5 text-sm font-medium rounded-md bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    >
+                        {resendVerificationMutation.isPending ? "Sending..." : "Resend Email"}
+                    </button>
+                </div>}
+        </div>
     )
 }
 
